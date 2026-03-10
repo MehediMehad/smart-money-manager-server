@@ -18,29 +18,40 @@ const registerUserIntoDB = catchAsync(async (req: Request, res: Response) => {
 });
 
 const loginUserIntoDB = catchAsync(async (req: Request, res: Response) => {
+  const platform = req.headers["x-platform"];
   const result = await AuthsServices.loginUser(req.body);
 
-  // Set Access token in cookie
-  res.cookie('accessToken', result.accessToken, {
-    httpOnly: true,
-    secure: true,
-    sameSite: 'none',
-    maxAge: config.jwt.access_cookie_max_age * 60 * 1000, // 30 minutes
-  });
+  if (platform === 'web') {
+    // Set Access token in cookie
+    res.cookie('accessToken', result.accessToken, {
+      httpOnly: true,
+      secure: process.env.NODE_ENV === 'production',
+      sameSite: 'none',
+      maxAge: config.jwt.access_cookie_max_age * 60 * 1000, // 30 minutes
+    });
 
-  // Set refresh token in cookie
-  res.cookie('refreshToken', result.refreshToken, {
-    httpOnly: true,
-    secure: true,
-    sameSite: 'none',
-    maxAge: config.jwt.refresh_cookie_max_age * 24 * 60 * 60 * 1000, // 90 days
-  });
+    // Set refresh token in cookie
+    res.cookie('refreshToken', result.refreshToken, {
+      httpOnly: true,
+      secure: process.env.NODE_ENV === 'production',
+      sameSite: 'strict',
+      maxAge: config.jwt.refresh_cookie_max_age * 24 * 60 * 60 * 1000, // 90 days
+    });
+
+    // Send response
+    return sendResponse(res, {
+      statusCode: httpStatus.OK,
+      success: true,
+      message: 'Login successful',
+      data: result.user,
+    });
+  }
 
   sendResponse(res, {
     statusCode: httpStatus.OK,
     success: true,
     message: 'Login successful',
-    data: result.user,
+    data: result,
   });
 });
 
