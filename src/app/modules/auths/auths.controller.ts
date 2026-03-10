@@ -25,7 +25,7 @@ const loginUserIntoDB = catchAsync(async (req: Request, res: Response) => {
     httpOnly: true,
     secure: true,
     sameSite: 'none',
-    maxAge: config.jwt.access_cookie_max_age * 24 * 60 * 60 * 1000,
+    maxAge: config.jwt.access_cookie_max_age * 60 * 1000, // 30 minutes
   });
 
   // Set refresh token in cookie
@@ -33,7 +33,7 @@ const loginUserIntoDB = catchAsync(async (req: Request, res: Response) => {
     httpOnly: true,
     secure: true,
     sameSite: 'none',
-    maxAge: config.jwt.refresh_cookie_max_age * 24 * 60 * 60 * 1000,
+    maxAge: config.jwt.refresh_cookie_max_age * 24 * 60 * 60 * 1000, // 90 days
   });
 
   sendResponse(res, {
