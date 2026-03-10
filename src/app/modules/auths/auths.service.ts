@@ -120,6 +120,8 @@ const loginUser = async (payload: TLoginPayload) => {
 
   const refreshToken = authHelpers.createRefreshToken({
     userId: user.id,
+    email: user.email,
+    role: user.role,
   });
 
   // password should not be sent
@@ -128,7 +130,7 @@ const loginUser = async (payload: TLoginPayload) => {
   return {
     accessToken,
     refreshToken,
-    ...userData,
+    user: userData,
   };
 };
 
@@ -162,6 +164,8 @@ const verifyEmail = async (payload: TVerifyPayload) => {
 
   const refreshToken = authHelpers.createRefreshToken({
     userId: user.id,
+    email: user.email,
+    role: user.role,
   });
 
   // Transaction usage

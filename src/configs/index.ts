@@ -27,6 +27,8 @@ const config = {
     reset_pass_secret: getEnvVar('JWT_RESET_PASS_SECRET'),
     reset_pass_expires_in: getEnvVar('JWT_RESET_PASS_EXPIRES_IN'),
     bcrypt_salt_rounds: Number(getEnvVar('BCRYPT_SALT_ROUNDS')),
+    access_cookie_max_age: Number(getEnvVar('access_cookie_max_age', '30')),
+    refresh_cookie_max_age: Number(getEnvVar('REFRESH_COOKIE_MAX_AGE', '30')),
   },
   mail: {
     email: getEnvVar('SMTP_EMAIL'),

@@ -5,6 +5,7 @@ import { AuthsServices } from './auths.service';
 import ApiError from '../../errors/ApiError';
 import catchAsync from '../../helpers/catchAsync';
 import sendResponse from '../../utils/sendResponse';
+import config from '../../../configs';
 
 const registerUserIntoDB = catchAsync(async (req: Request, res: Response) => {
   const result = await AuthsServices.registerUser(req.body);
@@ -19,20 +20,27 @@ const registerUserIntoDB = catchAsync(async (req: Request, res: Response) => {
 const loginUserIntoDB = catchAsync(async (req: Request, res: Response) => {
   const result = await AuthsServices.loginUser(req.body);
 
+  // Set Access token in cookie
+  res.cookie('accessToken', result.accessToken, {
+    httpOnly: true,
+    secure: true,
+    sameSite: 'none',
+    maxAge: config.jwt.access_cookie_max_age * 24 * 60 * 60 * 1000,
+  });
+
   // Set refresh token in cookie
   res.cookie('refreshToken', result.refreshToken, {
-    httpOnly: true, // JS access নেই
-    secure: process.env.NODE_ENV === 'production', // HTTPS only in prod
-    sameSite: 'strict', // CSRF protect
-    maxAge: 30 * 24 * 60 * 60 * 1000, // 30 days
-    path: '/',
+    httpOnly: true,
+    secure: true,
+    sameSite: 'none',
+    maxAge: config.jwt.refresh_cookie_max_age * 24 * 60 * 60 * 1000,
   });
 
   sendResponse(res, {
     statusCode: httpStatus.OK,
     success: true,
     message: 'Login successful',
-    data: result,
+    data: result.user,
   });
 });
 
