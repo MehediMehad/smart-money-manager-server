@@ -23,11 +23,201 @@ model User {
   createdAt     DateTime  @default(now())
   updatedAt     DateTime  @updatedAt
 
+  // Financial Relations
+  incomes        Income[]
+  expenses       Expense[]
+  dailyBudgets   DailyBudget[]
+  monthlyBudgets MonthlyBudget[]
+  savingsGoals   SavingsGoal[]
+  debts          Debt[]
+
+  // Category Relations
+  categories Category[]
+
   // Notification Relations
   notificationsSent     Notification[] @relation("sender")
   notificationsReceived Notification[] @relation("receiver")
 
   @@map("users")
+}
+
+//////////////////////////////////////////////////////
+// CATEGORY
+//////////////////////////////////////////////////////
+
+model Category {
+  id        String       @id @default(auto()) @map("_id") @db.ObjectId
+  name      String
+  type      CategoryType
+  createdAt DateTime     @default(now())
+
+  userId String @db.ObjectId
+  user   User   @relation(fields: [userId], references: [id])
+
+  incomes      Income[]
+  expenses     Expense[]
+  dailyBudgets DailyBudget[]
+
+  @@unique([name, type])
+  @@index([type])
+  @@index([createdAt])
+  @@map("categories")
+}
+
+enum CategoryType {
+  INCOME
+  EXPENSE
+}
+
+//////////////////////////////////////////////////////
+// INCOME
+//////////////////////////////////////////////////////
+
+model Income {
+  id         String   @id @default(auto()) @map("_id") @db.ObjectId
+  userId     String   @db.ObjectId
+  categoryId String   @db.ObjectId
+  amount     Int      @db.Int
+  note       String
+  date       DateTime
+  createdAt  DateTime @default(now())
+
+  user     User     @relation(fields: [userId], references: [id])
+  category Category @relation(fields: [categoryId], references: [id])
+
+  @@index([userId, date])
+  @@index([categoryId])
+  @@index([date])
+  @@index([createdAt])
+  @@map("incomes")
+}
+
+//////////////////////////////////////////////////////
+// EXPENSE
+//////////////////////////////////////////////////////
+
+model Expense {
+  id         String   @id @default(auto()) @map("_id") @db.ObjectId
+  userId     String   @db.ObjectId
+  categoryId String   @db.ObjectId
+  amount     Int      @db.Int
+  note       String
+  date       DateTime
+  createdAt  DateTime @default(now())
+
+  user     User     @relation(fields: [userId], references: [id])
+  category Category @relation(fields: [categoryId], references: [id])
+
+  @@index([userId, date])
+  @@index([categoryId])
+}
+
+//////////////////////////////////////////////////////
+// DAILY BUDGET
+//////////////////////////////////////////////////////
+
+model DailyBudget {
+  id         String   @id @default(auto()) @map("_id") @db.ObjectId
+  userId     String   @db.ObjectId
+  categoryId String   @db.ObjectId
+  amount     Int      @db.Int
+  date       DateTime
+  createdAt  DateTime @default(now())
+
+  user     User     @relation(fields: [userId], references: [id])
+  category Category @relation(fields: [categoryId], references: [id])
+
+  @@index([userId, date])
+  @@index([categoryId])
+  @@index([date])
+  @@index([createdAt])
+  @@map("daily_budgets")
+}
+
+//////////////////////////////////////////////////////
+// MONTHLY BUDGET
+//////////////////////////////////////////////////////
+
+model MonthlyBudget {
+  id        String   @id @default(auto()) @map("_id") @db.ObjectId
+  userId    String   @db.ObjectId
+  amount    Int      @db.Int
+  month     Int
+  year      Int
+  createdAt DateTime @default(now())
+
+  user User @relation(fields: [userId], references: [id])
+
+  @@index([userId, month, year])
+  @@map("monthly_budgets")
+}
+
+//////////////////////////////////////////////////////
+// SAVINGS GOAL
+//////////////////////////////////////////////////////
+
+model SavingsGoal {
+  id           String   @id @default(auto()) @map("_id") @db.ObjectId
+  userId       String   @db.ObjectId
+  title        String
+  targetAmount Int      @db.Int
+  savedAmount  Int      @db.Int
+  deadline     DateTime
+  createdAt    DateTime @default(now())
+
+  user         User                 @relation(fields: [userId], references: [id])
+  transactions SavingsTransaction[]
+
+  @@index([userId])
+  @@map("savings_goals")
+}
+
+//////////////////////////////////////////////////////
+// SAVINGS TRANSACTIONS
+//////////////////////////////////////////////////////
+
+model SavingsTransaction {
+  id        String   @id @default(auto()) @map("_id") @db.ObjectId
+  goalId    String   @db.ObjectId
+  amount    Int      @db.Int
+  createdAt DateTime @default(now())
+
+  goal SavingsGoal @relation(fields: [goalId], references: [id])
+
+  @@index([goalId])
+  @@map("savings_transactions")
+}
+
+//////////////////////////////////////////////////////
+// DEBTS
+//////////////////////////////////////////////////////
+
+model Debt {
+  id        String     @id @default(auto()) @map("_id") @db.ObjectId
+  userId    String     @db.ObjectId
+  person    String
+  amount    Int        @db.Int
+  type      DebtType
+  dueDate   DateTime?
+  status    DebtStatus @default(PENDING)
+  note      String
+  createdAt DateTime   @default(now())
+
+  user User @relation(fields: [userId], references: [id])
+
+  @@index([userId])
+  @@index([status])
+  @@map("debts")
+}
+
+enum DebtType {
+  GIVEN
+  TAKEN
+}
+
+enum DebtStatus {
+  PENDING
+  PAID
 }
 
 model Notification {
