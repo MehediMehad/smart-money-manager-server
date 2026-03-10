@@ -23,7 +23,6 @@ const seedSuperAdmin = async () => {
       name: 'Super Admin',
       password: hashedPassword,
       email: config.admin.email,
-      phone: '000000000',
       role: UserRoleEnum.ADMIN,
       status: UserStatusEnum.ACTIVE,
       isVerified: true,

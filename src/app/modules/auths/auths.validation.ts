@@ -16,9 +16,6 @@ export const registerSchema = z.object({
     .min(2, 'Name must be at least 2 characters')
     .max(50, 'Name must be at most 50 characters'),
   email: z.string().email('Invalid email address').trim().toLowerCase(),
-  phone: z
-    .string()
-    .regex(/^(?:\+8801|01)[3-9]\d{8}$/, 'Please enter a valid Bangladeshi phone number'),
   password: passwordSchema,
   role: z.nativeEnum(UserRoleEnum).default(UserRoleEnum.USER),
   fcmToken: z.string().optional(),

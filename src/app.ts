@@ -30,17 +30,17 @@ app.use(express.static(path.join(process.cwd(), 'public')));
 app.use(cookieParser());
 
 // 🚀 Cron Job Every 30 Minutes
-cron.schedule('*/30 * * * *', () => {
-  console.log('🧵 Cron job running every 30 minutes');
-  try {
-    // EventsServices.eventReminder();
-    // EventsServices.eventCompleted();
-    // SubscriptionsServices.expireSubscriptions();
-    console.log('🧵 Cron job completed');
-  } catch (err) {
-    console.error('Event reminder error:', err);
-  }
-});
+// cron.schedule('*/30 * * * *', () => {
+//   console.log('🧵 Cron job running every 30 minutes');
+//   try {
+//     // EventsServices.eventReminder();
+//     // EventsServices.eventCompleted();
+//     // SubscriptionsServices.expireSubscriptions();
+//     console.log('🧵 Cron job completed');
+//   } catch (err) {
+//     console.error('Event reminder error:', err);
+//   }
+// });
 
 // 🌐 CORS Configuration (support multiple origins)
 app.use(

@@ -1,16 +1,12 @@
 import type { NextFunction, Request, Response } from 'express';
 import type { z } from 'zod';
 
-interface FileFieldMapping {
-  [key: string]:
-  | 'single'
-  | 'array'
-  | { target: string; mode: 'single' | 'array'; filedName: string; type?: 'multiple' | 'single' }; // 👈 dynamic nested mapping
-}
+
 
 const validateRequest =
-  (schema: z.ZodTypeAny, fileFields?: FileFieldMapping) =>
+  (schema: z.ZodTypeAny) =>
     async (req: Request, _res: Response, next: NextFunction) => {
+
       try {
         // May actually come as a string from multipart/form-data
         let data = req.body?.data ?? req.body;
@@ -34,7 +30,7 @@ const validateRequest =
     };
 
 export const validateRequestArray =
-  (schema: z.ZodTypeAny, fileFields?: FileFieldMapping) =>
+  (schema: z.ZodTypeAny,) =>
     async (req: Request, _res: Response, next: NextFunction) => {
       try {
         // Parse body if string (multipart/form-data)
