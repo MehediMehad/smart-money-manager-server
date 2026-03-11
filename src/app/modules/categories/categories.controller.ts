@@ -5,9 +5,10 @@ import { CategoriesServices } from './categories.service';
 import catchAsync from '../../helpers/catchAsync';
 import sendResponse from '../../utils/sendResponse';
 
-const createCategoriesIntoDB = catchAsync(async (req: Request, res: Response) => {
+const createCategoryIntoDB = catchAsync(async (req: Request, res: Response) => {
+  const userId = req.user.userId;
   const body = req.body;
-  const result = await CategoriesServices.createCategories(body);
+  const result = await CategoriesServices.createCategory(userId, body);
   sendResponse(res, {
     statusCode: httpStatus.CREATED,
     success: true,
@@ -17,5 +18,5 @@ const createCategoriesIntoDB = catchAsync(async (req: Request, res: Response) =>
 });
 
 export const CategoriesControllers = {
-  createCategoriesIntoDB,
+  createCategoryIntoDB,
 };

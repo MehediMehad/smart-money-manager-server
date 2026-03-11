@@ -31,13 +31,12 @@ model User {
   debts          Debt[]
 
   // User-created categories
-  categories Category[]
+  categories       Category[]
+  hiddenCategories HiddenCategory[]
 
-  // Hidden system categories
-  hiddenCategories      HiddenCategory[]
   // Notification Relations
-  notificationsSent     Notification[]   @relation("sender")
-  notificationsReceived Notification[]   @relation("receiver")
+  notificationsSent     Notification[] @relation("sender")
+  notificationsReceived Notification[] @relation("receiver")
 
   @@map("users")
 }

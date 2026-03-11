@@ -3,7 +3,7 @@ import prisma from "../../libs/prisma";
 import httpStatus from "http-status";
 import { TCreateCategoriesPayload } from "../../modules/categories/categories.interface";
 
-const findAdminId = async (): Promise<string> => {
+export const findAdminId = async (): Promise<string> => {
     const admin = await prisma.user.findFirst({
         where: {
             role: "ADMIN"

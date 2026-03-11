@@ -7,10 +7,10 @@ import { CategoriesValidations } from "./categories.validation";
 const router = Router();
 
 router.post(
-  "/create-categories",
+  "/",
   auth('USER', 'ADMIN'),
   validateRequest(CategoriesValidations.createCategoriesSchema),
-  CategoriesControllers.createCategoriesIntoDB,
+  CategoriesControllers.createCategoryIntoDB,
 );
 
 export const CategoriesRoutes = router;
