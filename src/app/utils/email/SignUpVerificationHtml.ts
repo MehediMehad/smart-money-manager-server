@@ -1,4 +1,4 @@
-export const SignUpVerificationHtml = (h1: string, otpCode: string) => `
+export const SignUpVerificationHtml = (h1: string, otpCode: string, expireMinutes: number) => `
 <html lang="en">
   <head>
     <meta charset="UTF-8" />
@@ -84,7 +84,7 @@ export const SignUpVerificationHtml = (h1: string, otpCode: string) => `
               margin-bottom: 30px;
             "
           >
-            <strong>Note:</strong> This verification code is valid for 10 minutes.
+            <strong>Note:</strong> This verification code is valid for ${expireMinutes} minutes.
           </p>
 
           <p

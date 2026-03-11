@@ -29,13 +29,13 @@ const config = {
     refresh_cookie_max_age: Number(getEnvVar('REFRESH_COOKIE_MAX_AGE', '30')),
   },
   mail: {
-    email: getEnvVar('SMTP_EMAIL'),
+    email: getEnvVar('NODE_MAILER_EMAIL'),
     host: getEnvVar('SMTP_HOST'),
     port: Number(getEnvVar('SMTP_PORT', '465')),
     secure: getEnvVar('SMTP_SECURE') === 'true',
     auth: {
-      user: getEnvVar('SMTP_EMAIL'),
-      pass: getEnvVar('SMTP_PASS'),
+      user: getEnvVar('NODE_MAILER_EMAIL'),
+      pass: getEnvVar('NODE_MAILER_APP_PASSWORD'),
     },
   },
   google: {

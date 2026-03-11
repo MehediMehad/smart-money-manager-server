@@ -23,6 +23,8 @@ import { sentEmailUtility } from '../../utils/email/sendEmail.util';
 import { SignUpVerificationHtml } from '../../utils/email/SignUpVerificationHtml';
 
 const registerUser = async (payload: TRegisterPayload) => {
+
+  const expireMinutes = 1;
   // if user already exists
   const isUserExists = await prisma.user.findFirst({
     where: {
@@ -60,7 +62,7 @@ const registerUser = async (payload: TRegisterPayload) => {
         data: CreateUserdata,
       });
 
-      const { otp, expiresAt } = generateHelpers.generateOTP(10);
+      const { otp, expiresAt } = generateHelpers.generateOTP(expireMinutes);
 
       const createOTP = await tx.otp.create({
         data: {
@@ -74,8 +76,8 @@ const registerUser = async (payload: TRegisterPayload) => {
       // Send email in a separate thread
       void sentEmailUtility(
         user.email,
-        'Verify Your Email',
-        SignUpVerificationHtml('Verify Your Email', createOTP.code),
+        'Signup Verification Code',
+        SignUpVerificationHtml('Your Signup Verification Code', createOTP.code, expireMinutes),
       );
 
       const { password: _, ...userResponse } = user;
@@ -350,6 +352,7 @@ const refreshToken = async (refreshToken: string) => {
 };
 
 const resendOtp = async (payload: TResendOtpPayload) => {
+  const expireMinutes = 1;
   const user = await prisma.user.findUnique({
     where: { email: payload.email },
   });
@@ -361,7 +364,7 @@ const resendOtp = async (payload: TResendOtpPayload) => {
 
   if (!user) throw new ApiError(httpStatus.NOT_FOUND, 'User not found');
 
-  const { otp, expiresAt } = generateHelpers.generateOTP(10);
+  const { otp, expiresAt } = generateHelpers.generateOTP(expireMinutes);
 
   await prisma.otp.create({
     data: {
@@ -375,7 +378,7 @@ const resendOtp = async (payload: TResendOtpPayload) => {
   // async email send
   const html =
     payload.type === 'VERIFY_EMAIL'
-      ? SignUpVerificationHtml('Verify Your Email', otp)
+      ? SignUpVerificationHtml('Signup Verification Code', otp, expireMinutes)
       : ForgotPasswordHtml('Reset Your Password', otp);
 
   void sentEmailUtility(payload.email, 'Your Verification Code', html);
