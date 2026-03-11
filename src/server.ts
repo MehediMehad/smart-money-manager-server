@@ -5,6 +5,7 @@ import app from './app';
 import seedSuperAdmin from './app/helpers/db/seedSuperAdmin';
 import { getLocalIP } from './app/helpers/devHelpers';
 import config from './configs';
+import seedCategories from './app/helpers/db/categories.seed';
 // import { initializeSocket } from './app/modules/chat/chat.socket';
 
 let server: HttpServer;
@@ -16,6 +17,7 @@ async function main() {
     server = app.listen(port, async () => {
       console.log(`🚀 Server is running on port ${port}`);
       await seedSuperAdmin(); // Seed Super Admin user on startup
+      await seedCategories(); // Seed categories on startup
       getLocalIP(); // 🖥️ Your PC's local IPv4 address(es)
 
     });
