@@ -197,13 +197,13 @@ const verifyEmail = async (payload: TVerifyPayload) => {
 
       // 3. Create RESET_PASSWORD OTP
       if (payload.type === 'RESET_PASSWORD') {
-        const { expiresAt } = generateHelpers.generateOTP(10);
+        const { expiresAt } = generateHelpers.generateOTP(5);
         await tx.otp.create({
           data: {
             code: accessToken,
             email: payload.email,
             type: 'RESET_PASSWORD',
-            expiresAt, // 10 minutes
+            expiresAt, // 5 minutes
           },
         });
       }
