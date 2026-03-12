@@ -138,8 +138,18 @@ const getSingleIncome = async (userId: string, id: string) => {
       id,
       userId,
     },
-    include: {
-      category: true,
+    select: {
+      id: true,
+      note: true,
+      amount: true,
+      date: true,
+      category: {
+        select: {
+          id: true,
+          name: true,
+          emoji: true,
+        },
+      },
     },
   });
 
