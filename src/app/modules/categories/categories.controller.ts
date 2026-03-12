@@ -4,6 +4,7 @@ import httpStatus from 'http-status';
 import { CategoriesServices } from './categories.service';
 import catchAsync from '../../helpers/catchAsync';
 import sendResponse from '../../utils/sendResponse';
+import pick from '../../helpers/pick';
 
 const createCategoryIntoDB = catchAsync(async (req: Request, res: Response) => {
   const userId = req.user.userId;
@@ -19,7 +20,8 @@ const createCategoryIntoDB = catchAsync(async (req: Request, res: Response) => {
 
 const getCategories = catchAsync(async (req: Request, res: Response) => {
   const userId = req.user.userId;
-  const result = await CategoriesServices.getCategories(userId);
+  const filter = pick(req.query, ['searchTerm', 'type']);
+  const result = await CategoriesServices.getCategories(userId, filter);
   sendResponse(res, {
     statusCode: httpStatus.OK,
     success: true,

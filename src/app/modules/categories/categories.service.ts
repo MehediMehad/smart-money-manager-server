@@ -1,8 +1,9 @@
 import prisma from '../../libs/prisma';
-import type { TCreateCategoriesPayload } from './categories.interface';
+import type { TCreateCategoriesPayload, TGetCategoriesFilter } from './categories.interface';
 import ApiError from '../../errors/ApiError';
 import httpStatus from 'http-status';
 import { findAdminId } from '../../helpers/db/categories.seed';
+import { CategoryTypeEnum } from '@prisma/client';
 
 const createCategory = async (userId: string, payload: TCreateCategoriesPayload) => {
   const { name, type, emoji } = payload;
@@ -72,7 +73,8 @@ const createCategory = async (userId: string, payload: TCreateCategoriesPayload)
   return category;
 };
 
-const getCategories = async (userId: string) => {
+const getCategories = async (userId: string, filter: TGetCategoriesFilter) => {
+  const { searchTerm, type } = filter;
   const adminId = await findAdminId();
   const categories = await prisma.category.findMany({
     where: {
@@ -81,6 +83,13 @@ const getCategories = async (userId: string) => {
         none: {
           userId: userId,
         },
+      },
+      name: {
+        contains: searchTerm,
+        mode: 'insensitive',
+      },
+      type: {
+        equals: type,
       },
     },
     orderBy: {
