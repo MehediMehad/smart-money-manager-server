@@ -120,13 +120,15 @@ model Expense {
   amount     Int      @db.Int
   note       String
   date       DateTime
-  createdAt  DateTime @default(now())
 
   user     User     @relation(fields: [userId], references: [id])
   category Category @relation(fields: [categoryId], references: [id])
 
   @@index([userId, date])
+  @@index([userId, categoryId])
   @@index([categoryId])
+  @@index([date])
+  @@map("expenses")
 }
 
 //////////////////////////////////////////////////////
@@ -139,15 +141,13 @@ model DailyBudget {
   categoryId String   @db.ObjectId
   amount     Int      @db.Int
   date       DateTime
-  createdAt  DateTime @default(now())
 
   user     User     @relation(fields: [userId], references: [id])
   category Category @relation(fields: [categoryId], references: [id])
 
+  @@unique([userId, categoryId, date])
   @@index([userId, date])
   @@index([categoryId])
-  @@index([date])
-  @@index([createdAt])
   @@map("daily_budgets")
 }
 

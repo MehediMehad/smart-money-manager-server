@@ -6,7 +6,7 @@ import pick from '../../helpers/pick';
 import { ExpenseServices } from './expense.service';
 
 const createExpense = catchAsync(async (req: Request, res: Response) => {
-  const userId = req.user.id;
+  const userId = req.user.userId;
 
   const result = await ExpenseServices.createExpense(userId, req.body);
 
@@ -19,7 +19,7 @@ const createExpense = catchAsync(async (req: Request, res: Response) => {
 });
 
 const getAllExpenses = catchAsync(async (req: Request, res: Response) => {
-  const userId = req.user.id;
+  const userId = req.user.userId;
 
   const filters = pick(req.query, [
     'searchTerm',
@@ -43,7 +43,7 @@ const getAllExpenses = catchAsync(async (req: Request, res: Response) => {
 });
 
 const getSingleExpense = catchAsync(async (req: Request, res: Response) => {
-  const userId = req.user.id;
+  const userId = req.user.userId;
 
   const result = await ExpenseServices.getSingleExpense(userId, req.params.id);
 
@@ -56,7 +56,7 @@ const getSingleExpense = catchAsync(async (req: Request, res: Response) => {
 });
 
 const updateExpense = catchAsync(async (req: Request, res: Response) => {
-  const userId = req.user.id;
+  const userId = req.user.userId;
 
   const result = await ExpenseServices.updateExpense(
     userId,
@@ -73,7 +73,7 @@ const updateExpense = catchAsync(async (req: Request, res: Response) => {
 });
 
 const deleteExpense = catchAsync(async (req: Request, res: Response) => {
-  const userId = req.user.id;
+  const userId = req.user.userId;
 
   await ExpenseServices.deleteExpense(userId, req.params.id);
 

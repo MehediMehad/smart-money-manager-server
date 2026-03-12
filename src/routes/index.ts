@@ -4,6 +4,7 @@ import { AuthsRoutes } from '../app/modules/auths/auths.route';
 import { CategoriesRoutes } from '../app/modules/categories/categories.route';
 import { IncomeRoutes } from '../app/modules/income/income.route';
 import { ExpenseRoutes } from '../app/modules/expense/expense.route';
+import { DailyBudgetRoutes } from '../app/modules/daily-budget/daily-budget.route';
 
 const router = express.Router();
 
@@ -23,6 +24,10 @@ const moduleRoutes = [
   {
     path: '/expenses',
     route: ExpenseRoutes,
+  },
+  {
+    path: '/daily-budgets',
+    route: DailyBudgetRoutes,
   },
 ];
 
