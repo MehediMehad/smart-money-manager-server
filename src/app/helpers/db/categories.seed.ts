@@ -1,7 +1,8 @@
+import { Prisma } from "@prisma/client";
 import ApiError from "../../errors/ApiError";
 import prisma from "../../libs/prisma";
 import httpStatus from "http-status";
-import { TCreateCategoriesPayload } from "../../modules/categories/categories.interface";
+
 
 export const findAdminId = async (): Promise<string> => {
     const admin = await prisma.user.findFirst({
@@ -18,7 +19,7 @@ export const findAdminId = async (): Promise<string> => {
 const seedCategories = async () => {
     const adminId = await findAdminId();
 
-    const expenseCategoriesData: TCreateCategoriesPayload[] = [
+    const expenseCategoriesData: Prisma.CategoryCreateManyInput[] = [
         { name: "Food", type: "EXPENSE", emoji: "🍔", userId: adminId },
         { name: "Groceries", type: "EXPENSE", emoji: "🛒", userId: adminId },
         { name: "Transport", type: "EXPENSE", emoji: "🚌", userId: adminId },
@@ -41,7 +42,7 @@ const seedCategories = async () => {
         { name: "Others", type: "EXPENSE", emoji: "📦", userId: adminId }
     ];
 
-    const incomeCategoriesData: TCreateCategoriesPayload[] = [
+    const incomeCategoriesData: Prisma.CategoryCreateManyInput[] = [
         { name: "Salary", type: "INCOME", emoji: "💰", userId: adminId },
         { name: "Freelance", type: "INCOME", emoji: "💻", userId: adminId },
         { name: "Business", type: "INCOME", emoji: "🏢", userId: adminId },
