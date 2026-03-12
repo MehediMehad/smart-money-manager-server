@@ -9,8 +9,15 @@ const router = Router();
 router.post(
   "/",
   auth('USER', 'ADMIN'),
-  validateRequest(CategoriesValidations.createCategoriesSchema),
+  validateRequest(CategoriesValidations.createCategorySchema),
   CategoriesControllers.createCategoryIntoDB,
+);
+
+router.post(
+  "/bulk-create",
+  auth('USER', 'ADMIN'),
+  validateRequest(CategoriesValidations.createManyCategoriesSchema),
+  CategoriesControllers.createCategoriesIntoDB,
 );
 
 router.get(
@@ -19,8 +26,14 @@ router.get(
   CategoriesControllers.getCategories,
 );
 
+router.get(
+  "/default",
+  auth('USER', 'ADMIN'),
+  CategoriesControllers.defaultCategories,
+);
+
 router.post(
-  "hide/:categoryId",
+  "/hide/:categoryId",
   auth('USER', 'ADMIN'),
   CategoriesControllers.hideCategory,
 );

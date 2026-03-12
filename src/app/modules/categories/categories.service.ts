@@ -3,7 +3,6 @@ import type { TCreateCategoriesPayload, TGetCategoriesFilter } from './categorie
 import ApiError from '../../errors/ApiError';
 import httpStatus from 'http-status';
 import { findAdminId } from '../../helpers/db/categories.seed';
-import { CategoryTypeEnum } from '@prisma/client';
 
 const createCategory = async (userId: string, payload: TCreateCategoriesPayload) => {
   const { name, type, emoji } = payload;
@@ -46,18 +45,22 @@ const createCategory = async (userId: string, payload: TCreateCategoriesPayload)
           id: existing.id,
         },
         data: {
-          name,
+          emoji,
         },
       })
 
       return existing;
     }
 
-    // if not hidden → duplicate
-    throw new ApiError(
-      httpStatus.CONFLICT,
-      'Category with this name and type already exists'
-    );
+    // if not hidden → update
+    return await prisma.category.update({
+      where: {
+        id: existing.id,
+      },
+      data: {
+        emoji,
+      },
+    });
   }
 
   // create new category
@@ -73,12 +76,65 @@ const createCategory = async (userId: string, payload: TCreateCategoriesPayload)
   return category;
 };
 
+const createCategories = async (userId: string, payloads: TCreateCategoriesPayload[]) => {
+  return await prisma.$transaction(async (tx) => {
+    // Get all categories of user that match any of the payload names+types
+    const existingCategories = await tx.category.findMany({
+      where: {
+        userId,
+        OR: payloads.map(p => ({ name: p.name, type: p.type })),
+      },
+    });
+
+    const hiddenCategories = await tx.hiddenCategory.findMany({
+      where: {
+        userId,
+        categoryId: { in: existingCategories.map(c => c.id) },
+      },
+    });
+
+    const results = [];
+
+    for (const payload of payloads) {
+      const existing = existingCategories.find(c => c.name === payload.name && c.type === payload.type);
+
+      if (existing) {
+        const hidden = hiddenCategories.find(h => h.categoryId === existing.id);
+
+        if (hidden) {
+          await tx.hiddenCategory.delete({
+            where: { userId_categoryId: { userId, categoryId: existing.id } },
+          });
+          const updated = await tx.category.update({
+            where: { id: existing.id },
+            data: { emoji: payload.emoji },
+          });
+          results.push(updated);
+        } else {
+          const updated = await tx.category.update({
+            where: { id: existing.id },
+            data: { emoji: payload.emoji },
+          });
+          results.push(updated);
+        }
+      } else {
+        const created = await tx.category.create({
+          data: { ...payload, userId },
+        });
+        results.push(created);
+      }
+    }
+
+    return results;
+  });
+};
+
 const getCategories = async (userId: string, filter: TGetCategoriesFilter) => {
   const { searchTerm, type } = filter;
-  const adminId = await findAdminId();
   const categories = await prisma.category.findMany({
     where: {
-      OR: [{ userId }, { userId: adminId }],
+      // OR: [{ userId }, { userId: adminId }],
+      userId: userId,
       hiddenByUsers: {
         none: {
           userId: userId,
@@ -91,6 +147,45 @@ const getCategories = async (userId: string, filter: TGetCategoriesFilter) => {
       type: {
         equals: type,
       },
+    },
+    select: {
+      id: true,
+      emoji: true,
+      name: true,
+      type: true
+    },
+    orderBy: {
+      name: 'desc'
+    }
+  });
+
+  return categories;
+};
+
+const defaultCategories = async (filter: TGetCategoriesFilter) => {
+  const { searchTerm, type } = filter;
+  const adminId = await findAdminId();
+  const categories = await prisma.category.findMany({
+    where: {
+      userId: adminId,
+      hiddenByUsers: {
+        none: {
+          userId: adminId,
+        },
+      },
+      name: {
+        contains: searchTerm,
+        mode: 'insensitive',
+      },
+      type: {
+        equals: type,
+      },
+    },
+    select: {
+      id: true,
+      emoji: true,
+      name: true,
+      type: true
     },
     orderBy: {
       name: 'desc'
@@ -120,6 +215,8 @@ const hideCategory = async (userId: string, categoryId: string) => {
 
 export const CategoriesServices = {
   createCategory,
+  createCategories,
   getCategories,
+  defaultCategories,
   hideCategory,
 };

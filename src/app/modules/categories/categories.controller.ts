@@ -18,10 +18,33 @@ const createCategoryIntoDB = catchAsync(async (req: Request, res: Response) => {
   });
 });
 
+const createCategoriesIntoDB = catchAsync(async (req: Request, res: Response) => {
+  const userId = req.user.userId;
+  const body = req.body;
+  const result = await CategoriesServices.createCategories(userId, body);
+  sendResponse(res, {
+    statusCode: httpStatus.CREATED,
+    success: true,
+    message: 'Categories created successfully',
+    data: result,
+  });
+})
+
 const getCategories = catchAsync(async (req: Request, res: Response) => {
   const userId = req.user.userId;
   const filter = pick(req.query, ['searchTerm', 'type']);
   const result = await CategoriesServices.getCategories(userId, filter);
+  sendResponse(res, {
+    statusCode: httpStatus.OK,
+    success: true,
+    message: 'Categories retrieved successfully',
+    data: result,
+  });
+});
+
+const defaultCategories = catchAsync(async (req: Request, res: Response) => {
+  const filter = pick(req.query, ['searchTerm', 'type']);
+  const result = await CategoriesServices.defaultCategories(filter);
   sendResponse(res, {
     statusCode: httpStatus.OK,
     success: true,
@@ -44,6 +67,8 @@ const hideCategory = catchAsync(async (req: Request, res: Response) => {
 
 export const CategoriesControllers = {
   createCategoryIntoDB,
+  createCategoriesIntoDB,
   getCategories,
+  defaultCategories,
   hideCategory,
 };
