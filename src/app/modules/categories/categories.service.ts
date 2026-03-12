@@ -7,18 +7,59 @@ import { findAdminId } from '../../helpers/db/categories.seed';
 const createCategory = async (userId: string, payload: TCreateCategoriesPayload) => {
   const { name, type, emoji } = payload;
 
-  // Check duplicate (same user, same name + type)
+  // check category exists
   const existing = await prisma.category.findUnique({
     where: {
-      name_type_userId: { name, type, userId }
-    }
+      name_type_userId: {
+        name,
+        type,
+        userId,
+      },
+    },
   });
 
   if (existing) {
-    throw new ApiError(httpStatus.CONFLICT, 'Category with this name and type already exists');
+    // check if hidden
+    const hidden = await prisma.hiddenCategory.findUnique({
+      where: {
+        userId_categoryId: {
+          userId,
+          categoryId: existing.id,
+        },
+      },
+    });
+
+    // if hidden → unhide and update
+    if (hidden) {
+      await prisma.hiddenCategory.delete({
+        where: {
+          userId_categoryId: {
+            userId,
+            categoryId: existing.id,
+          },
+        },
+      });
+
+      await prisma.category.update({
+        where: {
+          id: existing.id,
+        },
+        data: {
+          name,
+        },
+      })
+
+      return existing;
+    }
+
+    // if not hidden → duplicate
+    throw new ApiError(
+      httpStatus.CONFLICT,
+      'Category with this name and type already exists'
+    );
   }
 
-  // Create category
+  // create new category
   const category = await prisma.category.create({
     data: {
       name,
@@ -50,7 +91,26 @@ const getCategories = async (userId: string) => {
   return categories;
 };
 
+const hideCategory = async (userId: string, categoryId: string) => {
+  const hiddenCategory = await prisma.hiddenCategory.upsert({
+    where: {
+      userId_categoryId: {
+        userId,
+        categoryId,
+      },
+    },
+    update: {},
+    create: {
+      userId,
+      categoryId,
+    },
+  });
+
+  return hiddenCategory;
+};
+
 export const CategoriesServices = {
   createCategory,
-  getCategories
+  getCategories,
+  hideCategory,
 };

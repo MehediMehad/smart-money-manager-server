@@ -28,7 +28,20 @@ const getCategories = catchAsync(async (req: Request, res: Response) => {
   });
 });
 
+const hideCategory = catchAsync(async (req: Request, res: Response) => {
+  const userId = req.user.userId;
+  const { categoryId } = req.params;
+  const result = await CategoriesServices.hideCategory(userId, categoryId);
+  sendResponse(res, {
+    statusCode: httpStatus.OK,
+    success: true,
+    message: 'Category hidden successfully',
+    data: result,
+  });
+});
+
 export const CategoriesControllers = {
   createCategoryIntoDB,
-  getCategories
+  getCategories,
+  hideCategory,
 };

@@ -19,4 +19,10 @@ router.get(
   CategoriesControllers.getCategories,
 );
 
+router.post(
+  "hide/:categoryId",
+  auth('USER', 'ADMIN'),
+  CategoriesControllers.hideCategory,
+);
+
 export const CategoriesRoutes = router;
