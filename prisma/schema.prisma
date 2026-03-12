@@ -98,15 +98,14 @@ model Income {
   amount     Int      @db.Int
   note       String
   date       DateTime
-  createdAt  DateTime @default(now())
 
   user     User     @relation(fields: [userId], references: [id])
   category Category @relation(fields: [categoryId], references: [id])
 
   @@index([userId, date])
+  @@index([userId, categoryId])
   @@index([categoryId])
   @@index([date])
-  @@index([createdAt])
   @@map("incomes")
 }
 
@@ -268,11 +267,6 @@ model Notification {
 enum NotificationTypeEnum {
   NOTIFY
   SYSTEM_ALERT
-}
-
-enum ChatRoomType {
-  PRIVATE
-  GROUP
 }
 
 model Otp {
