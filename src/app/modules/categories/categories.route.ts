@@ -13,4 +13,10 @@ router.post(
   CategoriesControllers.createCategoryIntoDB,
 );
 
+router.get(
+  "/",
+  auth('USER', 'ADMIN'),
+  CategoriesControllers.getCategories,
+);
+
 export const CategoriesRoutes = router;

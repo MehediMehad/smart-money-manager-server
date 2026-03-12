@@ -64,7 +64,6 @@ model Category {
 
   @@unique([name, type, userId])
   @@index([type])
-  @@index([createdAt])
   @@map("categories")
 }
 
@@ -80,7 +79,6 @@ model HiddenCategory {
   @@unique([userId, categoryId])
   @@index([userId])
   @@index([categoryId])
-  @@index([createdAt])
   @@map("hidden_categories")
 }
 

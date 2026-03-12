@@ -36,10 +36,14 @@ const getCategories = async (userId: string) => {
   const categories = await prisma.category.findMany({
     where: {
       OR: [{ userId }, { userId: adminId }],
-      hiddenByUsers: { none: { id: userId } }
+      hiddenByUsers: {
+        none: {
+          userId: userId,
+        },
+      },
     },
     orderBy: {
-      createdAt: 'desc'
+      name: 'desc'
     }
   });
 
@@ -48,4 +52,5 @@ const getCategories = async (userId: string) => {
 
 export const CategoriesServices = {
   createCategory,
+  getCategories
 };
