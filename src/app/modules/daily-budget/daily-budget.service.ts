@@ -23,7 +23,15 @@ const createDailyBudget = async (
   });
 
   if (exists) {
-    throw new ApiError(httpStatus.BAD_REQUEST, 'Daily budget already exists');
+    const result = await prisma.dailyBudget.update({
+      where: {
+        id: exists.id,
+      },
+      data: {
+        amount: exists.amount + payload.amount,
+      },
+    })
+    return result
   }
 
   const result = await prisma.dailyBudget.create({
