@@ -171,7 +171,7 @@ const getCategories = async (userId: string, filter: TGetCategoriesFilter) => {
     }
   });
 
-  return { count: categories.length, categories };
+  return categories;
 };
 
 const defaultCategories = async (filter: TGetCategoriesFilter) => {
