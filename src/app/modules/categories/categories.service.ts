@@ -3,6 +3,7 @@ import type { TCreateCategoriesPayload, TGetCategoriesFilter } from './categorie
 import ApiError from '../../errors/ApiError';
 import httpStatus from 'http-status';
 import { findAdminId } from '../../helpers/db/categories.seed';
+import e from 'express';
 
 const createCategory = async (userId: string, payload: TCreateCategoriesPayload) => {
   const { name, type, emoji } = payload;
@@ -81,11 +82,12 @@ const createCategory = async (userId: string, payload: TCreateCategoriesPayload)
 };
 
 const createCategories = async (userId: string, payloads: TCreateCategoriesPayload[]) => {
+
+  const adminId = await findAdminId();
   return await prisma.$transaction(async (tx) => {
     // Get all categories of user that match any of the payload names+types
     const existingCategories = await tx.category.findMany({
       where: {
-        userId,
         OR: payloads.map(p => ({ name: p.name, type: p.type })),
       },
     });
@@ -114,10 +116,16 @@ const createCategories = async (userId: string, payloads: TCreateCategoriesPaylo
             data: { emoji: payload.emoji },
           });
           results.push(updated);
+        } else if (existing.userId === adminId && userId === adminId) {
+          const updated = await tx.category.update({
+            where: { id: existing.id },
+            data: { userId: adminId },
+          });
+          results.push(updated);
         } else {
           const updated = await tx.category.update({
             where: { id: existing.id },
-            data: { emoji: payload.emoji },
+            data: {},
           });
           results.push(updated);
         }
