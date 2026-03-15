@@ -63,6 +63,7 @@ model Category {
   hiddenByUsers HiddenCategory[]
 
   @@unique([name, type, userId])
+  @@unique([name, type])
   @@index([type])
   @@map("categories")
 }

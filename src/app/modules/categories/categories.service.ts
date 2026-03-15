@@ -10,10 +10,9 @@ const createCategory = async (userId: string, payload: TCreateCategoriesPayload)
   // check category exists
   const existing = await prisma.category.findUnique({
     where: {
-      name_type_userId: {
+      name_type: {
         name,
         type,
-        userId,
       },
     },
   });
@@ -51,16 +50,21 @@ const createCategory = async (userId: string, payload: TCreateCategoriesPayload)
 
       return existing;
     }
+    const adminId = await findAdminId();
+
+    if (existing.userId !== adminId && userId === adminId) {
+      return await prisma.category.update({
+        where: {
+          id: existing.id,
+        },
+        data: {
+          userId: adminId,
+        },
+      })
+    }
 
     // if not hidden → update
-    return await prisma.category.update({
-      where: {
-        id: existing.id,
-      },
-      data: {
-        emoji,
-      },
-    });
+    return existing;
   }
 
   // create new category
@@ -131,10 +135,10 @@ const createCategories = async (userId: string, payloads: TCreateCategoriesPaylo
 
 const getCategories = async (userId: string, filter: TGetCategoriesFilter) => {
   const { searchTerm, type } = filter;
+  const adminId = await findAdminId();
   const categories = await prisma.category.findMany({
     where: {
-      // OR: [{ userId }, { userId: adminId }],
-      userId: userId,
+      OR: [{ userId }, { userId: adminId }],
       hiddenByUsers: {
         none: {
           userId: userId,
@@ -159,7 +163,7 @@ const getCategories = async (userId: string, filter: TGetCategoriesFilter) => {
     }
   });
 
-  return categories;
+  return { count: categories.length, categories };
 };
 
 const defaultCategories = async (filter: TGetCategoriesFilter) => {
