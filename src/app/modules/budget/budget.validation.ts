@@ -1,11 +1,20 @@
-import { z } from "zod";
+import { z } from 'zod';
 
 export const createBudgetSchema = z.object({
-  // TODO: add your fields here
-  // title: z.string().min(1).trim(),
-  // date: z.string().datetime({ message: 'Invalid date format' }),
+  categoryId: z.string(),
+  amount: z.number().int().positive(),
+  date: z.string(),
+  type: z.enum(['DAILY', 'MONTHLY']),
+});
+
+export const updateSchema = z.object({
+  categoryId: z.string().optional(),
+  amount: z.number().int().positive().optional(),
+  date: z.string().optional(),
+  type: z.enum(['DAILY', 'MONTHLY']).optional(),
 });
 
 export const BudgetValidations = {
   createBudgetSchema,
+  updateSchema,
 };

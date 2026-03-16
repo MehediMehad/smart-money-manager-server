@@ -7,8 +7,9 @@ import sendResponse from '../../utils/sendResponse';
 import pick from '../../helpers/pick';
 
 const createBudgetIntoDB = catchAsync(async (req: Request, res: Response) => {
+  const userId = req.user.userId;
   const body = req.body;
-  const result = await BudgetServices.createBudget(body);
+  const result = await BudgetServices.createBudget(userId, body);
   sendResponse(res, {
     statusCode: httpStatus.CREATED,
     success: true,

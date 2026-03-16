@@ -36,12 +36,6 @@ const matchDay = (dayOne: string = new Date().toISOString(), dayTwo: string) => 
   return dayOneSplit === dayTwoSplit;
 };
 
-const getDateRange = (dateStr: string) => {
-  const start = new Date(`${dateStr}T00:00:00.000Z`);
-  const end = new Date(`${dateStr}T23:59:59.999Z`);
-  return { start, end };
-};
-
 // example 03:
 // const { start, end } = getDateRange('2002-09-15');
 //* Output: { start: 2002-09-15T00:00:00.000Z, end: 2002-09-15T23:59:59.999Z }
@@ -57,9 +51,37 @@ const getMonthRange = (year: number, month: number) => {
 // const { start, end } = getMonthRange(2002, 9);
 //* Output: { start: 2002-09-01T00:00:00.000Z, end: 2002-09-30T23:59:59.999Z }
 
+
+
+const getDayDateRange = (dateStr: string) => {
+  const start = new Date(dateStr);
+  start.setUTCHours(0, 0, 0, 0);
+
+  const end = new Date(dateStr);
+  end.setUTCHours(23, 59, 59, 999);
+
+  return { start, end };
+};
+
+// output: { start: 2026-03-16T00:00:00.000Z, end: 2026-03-16T23:59:59.999Z }
+
+const getMonthDateRange = (dateStr: string) => { // 2026-03-16
+  const date = new Date(dateStr);
+  const year = date.getUTCFullYear();
+  const month = date.getUTCMonth() + 1; // 1-12
+
+  const start = new Date(Date.UTC(year, month - 1, 1, 0, 0, 0, 0));
+  const end = new Date(Date.UTC(year, month, 0, 23, 59, 59, 999));
+
+  return { start, end, month, year };
+};
+
+// output: { start: 2026-03-16T00:00:00.000Z, end: 2026-03-16T23:59:59.999Z, month: 3, year: 2026 }
+
 export const dateHelpers = {
   toPrismaDate,
   matchDay,
-  getDateRange,
-  getMonthRange
+  getMonthRange,
+  getDayDateRange,
+  getMonthDateRange
 };

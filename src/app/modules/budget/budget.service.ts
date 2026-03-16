@@ -2,13 +2,103 @@ import prisma from '../../libs/prisma';
 import type { TBudget, TCreateBudgetPayload } from './budget.interface';
 import ApiError from '../../errors/ApiError';
 import httpStatus from 'http-status';
-import { Prisma } from '@prisma/client';
 import { dateHelpers } from '../../helpers/dateHelpers';
 
-const createBudget = async (payload: TCreateBudgetPayload) => {
-  // TODO: implement create logic here
-  // const result = await prisma.budget.create({ data: payload });
-  // return result;
+
+const createBudget = async (
+  userId: string,
+  payload: TCreateBudgetPayload
+) => {
+  const { categoryId, amount, date, type } = payload;
+
+
+  // Check if category exists
+  const category = await prisma.category.findFirst({
+    where: {
+      id: categoryId,
+    },
+  });
+
+  if (!category) {
+    throw new ApiError(httpStatus.BAD_REQUEST, "Invalid category");
+  }
+
+
+  if (type === "DAILY") {
+    const { start, end } = dateHelpers.getDayDateRange(date);
+
+    const budget = await prisma.dailyBudget.upsert({
+      where: {
+        // Unique constraint: userId_categoryId_date
+        userId_categoryId_date: {
+          userId,
+          categoryId,
+          date: start, // Normalize to start of day
+        },
+      },
+      update: {
+        amount,
+      },
+      create: {
+        userId,
+        categoryId,
+        amount,
+        date: start,
+      },
+      include: {
+        category: {
+          select: {
+            id: true,
+            name: true,
+            emoji: true,
+            type: true,
+          },
+        },
+      },
+    });
+
+    return budget
+  }
+
+
+  if (type === "MONTHLY") {
+    const { month, year } = dateHelpers.getMonthDateRange(date);
+
+    const budget = await prisma.monthlyBudget.upsert({
+      where: {
+        // Unique constraint: userId_categoryId_month_year
+        userId_categoryId_month_year: {
+          userId,
+          categoryId,
+          month,
+          year,
+        },
+      },
+      update: {
+        amount,
+      },
+      create: {
+        userId,
+        categoryId,
+        amount,
+        month,
+        year,
+      },
+      include: {
+        category: {
+          select: {
+            id: true,
+            name: true,
+            emoji: true,
+            type: true,
+          },
+        },
+      },
+    });
+    return budget
+  }
+
+  throw new ApiError(httpStatus.BAD_REQUEST, "Invalid budget type");
 };
 
 const getAllBudgets = async (
@@ -36,7 +126,7 @@ const getAllBudgets = async (
 
 
   if (type === "DAILY" || type === undefined) {
-    const { start: dayStart, end: dayEnd } = dateHelpers.getDateRange(date); // ex: 2026-03-16
+    const { start: dayStart, end: dayEnd } = dateHelpers.getDayDateRange(date); // ex: 2026-03-16
 
     const dailyBudgets = await prisma.dailyBudget.findMany({
       where: {
@@ -146,6 +236,7 @@ const getAllBudgets = async (
 
   return budgets;
 };
+
 
 
 
