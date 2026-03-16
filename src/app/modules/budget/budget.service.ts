@@ -1,5 +1,5 @@
 import prisma from '../../libs/prisma';
-import type { TBudget, TCreateBudgetPayload } from './budget.interface';
+import type { TBudget, TCreateBudgetPayload, TUpdateBudgetPayload } from './budget.interface';
 import ApiError from '../../errors/ApiError';
 import httpStatus from 'http-status';
 import { dateHelpers } from '../../helpers/dateHelpers';
@@ -237,10 +237,58 @@ const getAllBudgets = async (
   return budgets;
 };
 
+const updateBudget = async (
+  userId: string,
+  budgetId: string,
+  payload: TUpdateBudgetPayload
+) => {
+  const { amount, type } = payload;
+
+  if (type === "MONTHLY") {
+
+    const isExists = await prisma.monthlyBudget.findFirst({
+      where: {
+        userId: userId,
+        id: budgetId,
+      },
+    })
+
+    if (!isExists) {
+      throw new ApiError(httpStatus.BAD_REQUEST, "Budget not found");
+    }
+
+    const updatedBudget = await prisma.monthlyBudget.update({
+      where: { id: budgetId, userId },
+      data: { amount },
+    });
+    return updatedBudget;
+  }
+
+  if (type === "DAILY") {
+    const isExists = await prisma.dailyBudget.findFirst({
+      where: {
+        userId: userId,
+        id: budgetId,
+      },
+    })
+
+    if (!isExists) {
+      throw new ApiError(httpStatus.BAD_REQUEST, "Budget not found");
+    }
 
 
+    const updatedBudget = await prisma.dailyBudget.update({
+      where: { id: budgetId, userId },
+      data: { amount },
+    });
+    return updatedBudget;
+  }
+
+  throw new ApiError(httpStatus.BAD_REQUEST, "Invalid budget type");
+}
 
 export const BudgetServices = {
   createBudget,
-  getAllBudgets
+  getAllBudgets,
+  updateBudget
 };

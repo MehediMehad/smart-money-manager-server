@@ -30,7 +30,21 @@ const getAllBudgets = catchAsync(async (req: Request, res: Response) => {
   });
 });
 
+const updateBudget = catchAsync(async (req: Request, res: Response) => {
+  const userId = req.user.userId;
+  const budgetId = req.params.budgetId;
+  const body = req.body;
+  const result = await BudgetServices.updateBudget(userId, budgetId, body);
+  sendResponse(res, {
+    statusCode: httpStatus.OK,
+    success: true,
+    message: 'Budget updated successfully',
+    data: result,
+  });
+});
+
 export const BudgetControllers = {
   createBudgetIntoDB,
   getAllBudgets,
+  updateBudget
 };

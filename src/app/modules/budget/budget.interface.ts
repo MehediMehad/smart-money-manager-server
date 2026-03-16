@@ -1,8 +1,9 @@
 import type { z } from 'zod';
 
-import type { createBudgetSchema } from './budget.validation';
+import type { createBudgetSchema, updateBudgetSchema } from './budget.validation';
 
 export type TCreateBudgetPayload = z.infer<typeof createBudgetSchema>;
+export type TUpdateBudgetPayload = z.infer<typeof updateBudgetSchema>;
 
 export type TBudget = {
     id: string;

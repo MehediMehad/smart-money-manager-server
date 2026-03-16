@@ -15,4 +15,11 @@ router.post(
 
 router.get("/", auth('USER'), BudgetControllers.getAllBudgets);
 
+router.patch(
+  "/:budgetId",
+  auth('USER'),
+  validateRequest(BudgetValidations.updateBudgetSchema),
+  BudgetControllers.updateBudget,
+);
+
 export const BudgetRoutes = router;
