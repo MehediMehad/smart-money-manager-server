@@ -36,7 +36,30 @@ const matchDay = (dayOne: string = new Date().toISOString(), dayTwo: string) => 
   return dayOneSplit === dayTwoSplit;
 };
 
+const getDateRange = (dateStr: string) => {
+  const start = new Date(`${dateStr}T00:00:00.000Z`);
+  const end = new Date(`${dateStr}T23:59:59.999Z`);
+  return { start, end };
+};
+
+// example 03:
+// const { start, end } = getDateRange('2002-09-15');
+//* Output: { start: 2002-09-15T00:00:00.000Z, end: 2002-09-15T23:59:59.999Z }
+
+
+const getMonthRange = (year: number, month: number) => {
+  const start = new Date(year, month - 1, 1, 0, 0, 0, 0);
+  const end = new Date(year, month, 0, 23, 59, 59, 999);
+  return { start, end };
+};
+
+// example 04:
+// const { start, end } = getMonthRange(2002, 9);
+//* Output: { start: 2002-09-01T00:00:00.000Z, end: 2002-09-30T23:59:59.999Z }
+
 export const dateHelpers = {
   toPrismaDate,
   matchDay,
+  getDateRange,
+  getMonthRange
 };
