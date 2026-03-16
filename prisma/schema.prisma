@@ -60,7 +60,8 @@ model Category {
   expenses     Expense[]
   dailyBudgets DailyBudget[]
 
-  hiddenByUsers HiddenCategory[]
+  hiddenByUsers  HiddenCategory[]
+  monthlyBudgets MonthlyBudget[]
 
   @@unique([name, type, userId])
   @@unique([name, type])
@@ -157,16 +158,20 @@ model DailyBudget {
 //////////////////////////////////////////////////////
 
 model MonthlyBudget {
-  id        String   @id @default(auto()) @map("_id") @db.ObjectId
-  userId    String   @db.ObjectId
-  amount    Int      @db.Int
-  month     Int
-  year      Int
-  createdAt DateTime @default(now())
+  id         String   @id @default(auto()) @map("_id") @db.ObjectId
+  userId     String   @db.ObjectId
+  categoryId String   @db.ObjectId
+  amount     Int      @db.Int
+  month      Int
+  year       Int
+  createdAt  DateTime @default(now())
 
-  user User @relation(fields: [userId], references: [id])
+  user     User     @relation(fields: [userId], references: [id])
+  category Category @relation(fields: [categoryId], references: [id])
 
+  @@unique([userId, categoryId, month, year])
   @@index([userId, month, year])
+  @@index([categoryId])
   @@map("monthly_budgets")
 }
 

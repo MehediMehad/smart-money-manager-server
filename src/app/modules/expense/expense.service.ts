@@ -14,7 +14,6 @@ const createExpense = async (userId: string, payload: TCreateExpensePayload) => 
   const category = await prisma.category.findFirst({
     where: {
       id: payload.categoryId,
-      userId,
       type: 'EXPENSE',
     },
   });
@@ -23,6 +22,54 @@ const createExpense = async (userId: string, payload: TCreateExpensePayload) => 
     throw new ApiError(httpStatus.BAD_REQUEST, 'Invalid expense category');
   }
 
+  // Convert the date string to a Date object
+  const expenseDate = new Date(payload.date);
+
+  // Check if Daily Budget exists for the date
+  const existingDailyBudget = await prisma.dailyBudget.findFirst({
+    where: {
+      userId,
+      categoryId: payload.categoryId,
+      date: expenseDate,
+    },
+  });
+
+  // If no daily budget, create it with 0 amount
+  if (!existingDailyBudget) {
+    await prisma.dailyBudget.create({
+      data: {
+        userId,
+        categoryId: payload.categoryId,
+        amount: 0,
+        date: expenseDate,
+      },
+    });
+  }
+
+  // Check if Monthly Budget exists for the month and year
+  const existingMonthlyBudget = await prisma.monthlyBudget.findFirst({
+    where: {
+      userId,
+      categoryId: payload.categoryId,
+      month: expenseDate.getMonth() + 1,  // JavaScript months are 0-based
+      year: expenseDate.getFullYear(),
+    },
+  });
+
+  // If no monthly budget, create it with 0 amount
+  if (!existingMonthlyBudget) {
+    await prisma.monthlyBudget.create({
+      data: {
+        userId,
+        categoryId: payload.categoryId,
+        amount: 0,
+        month: expenseDate.getMonth() + 1,
+        year: expenseDate.getFullYear(),
+      },
+    });
+  }
+
+  // Finally, create the expense
   const result = await prisma.expense.create({
     data: {
       ...payload,
@@ -32,6 +79,8 @@ const createExpense = async (userId: string, payload: TCreateExpensePayload) => 
 
   return result;
 };
+
+
 
 const getAllExpenses = async (
   userId: string,
