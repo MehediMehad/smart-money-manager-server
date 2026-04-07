@@ -12,7 +12,6 @@ export type TBudget = {
         id: string;
         name: string;
         emoji: string;
-        type: "INCOME" | "EXPENSE";
     };
     type: "DAILY" | "MONTHLY";
     amount: number;
