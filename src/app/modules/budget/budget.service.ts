@@ -9,7 +9,7 @@ const createBudget = async (
   userId: string,
   payload: TCreateBudgetPayload
 ) => {
-  const { categoryId, amount, date, type } = payload;
+  const { categoryId, amount, date, type, month, year } = payload;
 
 
   // Check if category exists
@@ -25,7 +25,7 @@ const createBudget = async (
 
 
   if (type === "DAILY") {
-    const { start, end } = dateHelpers.getDayDateRange(date);
+    const { start, end } = dateHelpers.getDayDateRange(date && date ? date : new Date().toISOString());
 
     const budget = await prisma.dailyBudget.upsert({
       where: {
@@ -62,7 +62,9 @@ const createBudget = async (
 
 
   if (type === "MONTHLY") {
-    const { month, year } = dateHelpers.getMonthDateRange(date);
+    if (!month || !year) {
+      throw new ApiError(httpStatus.BAD_REQUEST, "Invalid month or year");
+    }
 
     const budget = await prisma.monthlyBudget.upsert({
       where: {
@@ -81,8 +83,8 @@ const createBudget = async (
         userId,
         categoryId,
         amount,
-        month,
-        year,
+        month: month,
+        year: year,
       },
       include: {
         category: {
@@ -95,11 +97,64 @@ const createBudget = async (
         },
       },
     });
+
     return budget
   }
 
   throw new ApiError(httpStatus.BAD_REQUEST, "Invalid budget type");
 };
+
+
+const updateBudget = async (
+  userId: string,
+  budgetId: string,
+  payload: TUpdateBudgetPayload
+) => {
+  const { amount, type } = payload;
+
+  if (type === "MONTHLY") {
+
+    const isExists = await prisma.monthlyBudget.findFirst({
+      where: {
+        userId: userId,
+        id: budgetId,
+      },
+    })
+
+    if (!isExists) {
+      throw new ApiError(httpStatus.BAD_REQUEST, "Budget not found");
+    }
+
+    const updatedBudget = await prisma.monthlyBudget.update({
+      where: { id: budgetId, userId },
+      data: { amount },
+    });
+    return updatedBudget;
+  }
+
+  if (type === "DAILY") {
+    const isExists = await prisma.dailyBudget.findFirst({
+      where: {
+        userId: userId,
+        id: budgetId,
+      },
+    })
+
+    if (!isExists) {
+      throw new ApiError(httpStatus.BAD_REQUEST, "Budget not found");
+    }
+
+
+    const updatedBudget = await prisma.dailyBudget.update({
+      where: { id: budgetId, userId },
+      data: { amount },
+    });
+    return updatedBudget;
+  }
+
+  throw new ApiError(httpStatus.BAD_REQUEST, "Invalid budget type");
+}
+
 
 const getAllBudgets = async (
   userId: string,
@@ -237,55 +292,7 @@ const getAllBudgets = async (
   return budgets;
 };
 
-const updateBudget = async (
-  userId: string,
-  budgetId: string,
-  payload: TUpdateBudgetPayload
-) => {
-  const { amount, type } = payload;
 
-  if (type === "MONTHLY") {
-
-    const isExists = await prisma.monthlyBudget.findFirst({
-      where: {
-        userId: userId,
-        id: budgetId,
-      },
-    })
-
-    if (!isExists) {
-      throw new ApiError(httpStatus.BAD_REQUEST, "Budget not found");
-    }
-
-    const updatedBudget = await prisma.monthlyBudget.update({
-      where: { id: budgetId, userId },
-      data: { amount },
-    });
-    return updatedBudget;
-  }
-
-  if (type === "DAILY") {
-    const isExists = await prisma.dailyBudget.findFirst({
-      where: {
-        userId: userId,
-        id: budgetId,
-      },
-    })
-
-    if (!isExists) {
-      throw new ApiError(httpStatus.BAD_REQUEST, "Budget not found");
-    }
-
-
-    const updatedBudget = await prisma.dailyBudget.update({
-      where: { id: budgetId, userId },
-      data: { amount },
-    });
-    return updatedBudget;
-  }
-
-  throw new ApiError(httpStatus.BAD_REQUEST, "Invalid budget type");
-}
 
 export const BudgetServices = {
   createBudget,
