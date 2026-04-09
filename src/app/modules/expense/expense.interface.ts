@@ -10,7 +10,7 @@ export type TUpdateExpensePayload = z.infer<typeof updateExpenseSchema>;
 export interface IExpenseFilter {
     searchTerm?: string;
     categoryId?: string;
-    date?: string;
+    date_range?: string;
     month?: string;
     year?: string;
 }

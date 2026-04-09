@@ -24,21 +24,18 @@ const getAllExpenses = catchAsync(async (req: Request, res: Response) => {
   const filters = pick(req.query, [
     'searchTerm',
     'categoryId',
-    'date',
     'month',
     'year',
+    'date_range',
   ]);
 
-  const options = pick(req.query, ['page', 'limit', 'sortBy', 'sortOrder']);
-
-  const result = await ExpenseServices.getAllExpenses(userId, filters, options);
+  const result = await ExpenseServices.getAllExpenses(userId, filters);
 
   sendResponse(res, {
     statusCode: httpStatus.OK,
     success: true,
     message: 'Expenses fetched successfully',
-    meta: result.meta,
-    data: result.data,
+    data: result,
   });
 });
 
