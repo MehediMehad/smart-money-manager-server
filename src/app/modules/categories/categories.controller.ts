@@ -32,7 +32,7 @@ const createCategoriesIntoDB = catchAsync(async (req: Request, res: Response) =>
 
 const getCategories = catchAsync(async (req: Request, res: Response) => {
   const userId = req.user.userId;
-  const filter = pick(req.query, ['searchTerm', 'type']);
+  const filter = pick(req.query, ['searchTerm', 'type', 'year', 'month']); // year, month
   const result = await CategoriesServices.getCategories(userId, filter);
   sendResponse(res, {
     statusCode: httpStatus.OK,

@@ -166,6 +166,7 @@ const getAllExpenses = async (
           id: true,
           name: true,
           emoji: true,
+          type: true,
         },
       },
     },

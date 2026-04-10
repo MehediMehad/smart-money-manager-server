@@ -1,9 +1,7 @@
 import prisma from '../../libs/prisma';
 import type { TCreateCategoriesPayload, TGetCategoriesFilter } from './categories.interface';
-import ApiError from '../../errors/ApiError';
-import httpStatus from 'http-status';
 import { findAdminId } from '../../helpers/db/categories.seed';
-import e from 'express';
+import { Prisma } from '@prisma/client';
 
 const createCategory = async (userId: string, payload: TCreateCategoriesPayload) => {
   const { name, type, emoji } = payload;
@@ -84,7 +82,8 @@ const createCategory = async (userId: string, payload: TCreateCategoriesPayload)
 const createCategories = async (userId: string, payloads: TCreateCategoriesPayload[]) => {
 
   const adminId = await findAdminId();
-  return await prisma.$transaction(async (tx) => {
+
+  const results = await prisma.$transaction(async (tx) => {
     // Get all categories of user that match any of the payload names+types
     const existingCategories = await tx.category.findMany({
       where: {
@@ -139,36 +138,74 @@ const createCategories = async (userId: string, payloads: TCreateCategoriesPaylo
 
     return results;
   });
-};
 
-const getCategories = async (userId: string, filter: TGetCategoriesFilter) => {
-  const { searchTerm, type } = filter;
+  return results;
+};
+const getCategories = async (
+  userId: string,
+  filter: TGetCategoriesFilter
+) => {
+  const { searchTerm, type, year, month } = filter;
   const adminId = await findAdminId();
-  const categories = await prisma.category.findMany({
-    where: {
-      OR: [{ userId }, { userId: adminId }],
-      hiddenByUsers: {
-        none: {
-          userId: userId,
-        },
+
+  const whereClause: Prisma.CategoryWhereInput = {
+    OR: [{ userId }, { userId: adminId }],
+    hiddenByUsers: {
+      none: {
+        userId,
       },
-      name: {
-        contains: searchTerm,
-        mode: 'insensitive',
-      },
+    },
+    name: {
+      contains: searchTerm || "",
+      mode: "insensitive",
+    },
+    ...(type && {
       type: {
         equals: type,
       },
-    },
+    }),
+  };
+
+  if (year && month) {
+    const start = new Date(Number(year), Number(month) - 1, 1);
+    const end = new Date(Number(year), Number(month), 1);
+
+    if (type === "EXPENSE") {
+      whereClause.expenses = {
+        some: {
+          userId,
+          date: {
+            gte: start,
+            lt: end,
+          },
+        },
+      };
+    }
+
+    if (type === "INCOME") {
+      whereClause.incomes = {
+        some: {
+          userId,
+          date: {
+            gte: start,
+            lt: end,
+          },
+        },
+      };
+    }
+  }
+
+  const categories = await prisma.category.findMany({
+    where: whereClause,
     select: {
       id: true,
       emoji: true,
       name: true,
-      type: true
+      type: true,
     },
     orderBy: {
-      name: 'desc'
-    }
+      name: "desc",
+    },
   });
 
   return categories;
