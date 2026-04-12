@@ -15,7 +15,13 @@ router.post(
 
 router.get("/", auth("USER"), IncomeControllers.getAllIncomes);
 
-router.get("/:id", auth("USER"), IncomeControllers.getSingleIncome);
+router.get("/:id/single", auth("USER"), IncomeControllers.getSingleIncome);
+
+router.get(
+    "/dashboard-summary",
+    auth("USER"),
+    IncomeControllers.getDashboardSummary
+);
 
 router.patch(
     "/:id",
