@@ -14,3 +14,14 @@ export interface IIncomeFilter {
     month?: string;
     year?: string;
 }
+
+export type IncomeWithCategory = {
+    id: string;
+    amount: number | string;
+    note: string | null;
+    date: Date;
+    category?: {
+        name: string;
+        emoji?: string | null;
+    } | null;
+};
