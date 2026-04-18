@@ -36,12 +36,9 @@ const createIncome = async (userId: string, payload: TCreateIncomePayload) => {
 const getAllIncomes = async (
   userId: string,
   filters: IIncomeFilter,
-  options: IPaginationOptions
 ) => {
-  const { searchTerm, categoryId, date, month, year } = filters;
+  const { searchTerm, categoryId, date_range, month, year } = filters;
 
-  const { limit, page, skip } =
-    paginationHelper.calculatePagination(options);
 
   const whereClause: Prisma.IncomeWhereInput = {
     userId,
@@ -54,51 +51,66 @@ const getAllIncomes = async (
   if (searchTerm) {
     whereClause.note = {
       contains: searchTerm,
-      mode: "insensitive",
+      mode: 'insensitive',
     };
   }
 
-  // Date filter
-  if (date) {
-    const start = new Date(date);
-    const end = new Date(date);
-    end.setDate(end.getDate() + 1);
+  /**
+   * date_range format: "5-12"
+   * month: "03"
+   * year: "2026"
+   *
+   * Result => 2026-03-05 to 2026-03-12
+   */
+
+  if (year && month && date_range) {
+    const y = Number(year);
+    const m = Number(month);
+    const [startDay, endDay] = date_range.split("-").map(Number);
+
+    if (
+      !isNaN(y) &&
+      !isNaN(m) &&
+      !isNaN(startDay) &&
+      !isNaN(endDay)
+    ) {
+      const start = new Date(y, m - 1, startDay);
+      const end = new Date(y, m - 1, endDay + 1);
+
+      // extra safety check
+      if (!isNaN(start.getTime()) && !isNaN(end.getTime())) {
+        whereClause.date = {
+          gte: start,
+          lt: end,
+        };
+      }
+    }
+  }
+  // whole month filter
+  else if (year && month) {
+    const start = new Date(Number(year), Number(month) - 1, 1);
+    const end = new Date(Number(year), Number(month), 1);
 
     whereClause.date = {
       gte: start,
       lt: end,
     };
   }
-
-  // Month filter
-  if (month) {
-    const start = new Date(`${month}-01`);
-    const end = new Date(start);
-    end.setMonth(end.getMonth() + 1);
+  // whole year filter
+  else if (year) {
+    const start = new Date(Number(year), 0, 1);
+    const end = new Date(Number(year) + 1, 0, 1);
 
     whereClause.date = {
       gte: start,
       lt: end,
-    };
-  }
-
-  // Year filter
-  if (year) {
-    const start = new Date(`${year}-01-01`);
-    const end = new Date(`${year}-12-31`);
-
-    whereClause.date = {
-      gte: start,
-      lte: end,
     };
   }
 
   const result = await prisma.income.findMany({
     where: whereClause,
-    skip,
-    take: limit,
     orderBy: {
-      date: "desc", //  newest first
+      date: "desc",
     },
     select: {
       id: true,
@@ -110,26 +122,13 @@ const getAllIncomes = async (
           id: true,
           name: true,
           emoji: true,
+          type: true,
         },
       },
-    }
-  });
-
-  const total = await prisma.income.count({
-    where: whereClause,
-  });
-
-  return {
-    meta: {
-      page,
-      limit,
-      total,
-      totalPage: Math.ceil(total / limit),
-      hasNextPage: page < Math.ceil(total / limit),
-      hasPrevPage: page > 1,
     },
-    data: result,
-  };
+  });
+
+  return result;
 };
 
 

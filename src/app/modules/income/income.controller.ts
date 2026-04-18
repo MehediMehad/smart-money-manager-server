@@ -24,21 +24,19 @@ const getAllIncomes = catchAsync(async (req: Request, res: Response) => {
     const filters = pick(req.query, [
         "searchTerm",
         "categoryId",
-        "date",
+        "date_range",
         "month",
         "year",
     ]);
 
-    const options = pick(req.query, ["page", "limit", "sortBy", "sortOrder"]);
 
-    const result = await IncomeServices.getAllIncomes(userId, filters, options);
+    const result = await IncomeServices.getAllIncomes(userId, filters);
 
     sendResponse(res, {
         statusCode: httpStatus.OK,
         success: true,
         message: "Incomes fetched successfully",
-        meta: result.meta,
-        data: result.data,
+        data: result,
     });
 });
 

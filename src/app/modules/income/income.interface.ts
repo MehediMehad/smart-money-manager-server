@@ -10,7 +10,7 @@ export type TUpdateIncomePayload = z.infer<typeof updateIncomeSchema>;
 export interface IIncomeFilter {
     searchTerm?: string;
     categoryId?: string;
-    date?: string;
+    date_range?: string;
     month?: string;
     year?: string;
 }
