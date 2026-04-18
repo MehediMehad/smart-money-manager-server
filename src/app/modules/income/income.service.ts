@@ -9,8 +9,6 @@ import type {
   TUpdateIncomePayload,
   IIncomeFilter,
 } from "./income.interface";
-import { buildIncomeSummary } from "./income.utils";
-import { formatDate, getMonthRange } from "../../utils/date";
 
 const createIncome = async (userId: string, payload: TCreateIncomePayload) => {
   const category = await prisma.category.findFirst({
@@ -188,55 +186,6 @@ const deleteIncome = async (userId: string, id: string) => {
   return null;
 };
 
-const getDashboardSummary = async (
-  userId: string,
-  year: number,
-  month: number,
-  today: string
-) => {
-  const { start, end } = getMonthRange(year, month);
-
-  const incomes = await prisma.income.findMany({
-    where: {
-      userId,
-      date: {
-        gte: start,
-        lte: end,
-      },
-    },
-    include: {
-      category: {
-        select: {
-          name: true,
-          emoji: true,
-        },
-      },
-    },
-    orderBy: {
-      date: "desc",
-    },
-  });
-
-  const summary = buildIncomeSummary(incomes, today, year, month);
-
-  const formatIncomesData = incomes.map((income) => ({
-    id: income.id,
-    date: formatDate(income.date),
-    source: income.category?.name ?? "Others",
-    amount: Number(income.amount),
-    note: income.note ?? "",
-  }))
-
-  return {
-    filter: {
-      year,
-      month,
-      date: today,
-    },
-    ...summary,
-    incomes: formatIncomesData
-  };
-};
 
 export const IncomeServices = {
   createIncome,
@@ -244,5 +193,4 @@ export const IncomeServices = {
   getSingleIncome,
   updateIncome,
   deleteIncome,
-  getDashboardSummary
 };
