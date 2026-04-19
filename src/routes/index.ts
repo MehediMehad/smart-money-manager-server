@@ -5,6 +5,7 @@ import { CategoriesRoutes } from '../app/modules/categories/categories.route';
 import { IncomeRoutes } from '../app/modules/income/income.route';
 import { ExpenseRoutes } from '../app/modules/expense/expense.route';
 import { BudgetRoutes } from '../app/modules/budget/budget.route';
+import { SavingsGoalRoutes } from '../app/modules/savingsgoal/savingsGoal.route';
 
 const router = express.Router();
 
@@ -28,6 +29,10 @@ const moduleRoutes = [
   {
     path: '/budgets',
     route: BudgetRoutes,
+  },
+  {
+    path: '/savings-goals',
+    route: SavingsGoalRoutes,
   },
 ];
 

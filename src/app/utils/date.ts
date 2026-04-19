@@ -5,6 +5,13 @@ export const getMonthRange = (year: number, month: number) => {
     };
 };
 
+export const getYearRange = (year: number) => {
+    return {
+        yearStart: new Date(year, 0, 1),
+        yearEnd: new Date(year, 11, 31, 23, 59, 59, 999),
+    };
+};
+
 
 export const formatDate = (date: Date) => {
     const y = date.getFullYear();

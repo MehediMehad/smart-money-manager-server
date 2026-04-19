@@ -182,7 +182,7 @@ model MonthlyBudget {
 model SavingsGoal {
   id           String   @id @default(auto()) @map("_id") @db.ObjectId
   userId       String   @db.ObjectId
-  title        String
+  name         String
   targetAmount Int      @db.Int
   savedAmount  Int      @db.Int
   deadline     DateTime
@@ -192,6 +192,7 @@ model SavingsGoal {
   transactions SavingsTransaction[]
 
   @@index([userId])
+  @@index([createdAt])
   @@map("savings_goals")
 }
 
@@ -208,6 +209,8 @@ model SavingsTransaction {
   goal SavingsGoal @relation(fields: [goalId], references: [id])
 
   @@index([goalId])
+  @@index([createdAt])
+  @@index([goalId, createdAt])
   @@map("savings_transactions")
 }
 
