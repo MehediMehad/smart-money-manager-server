@@ -6,6 +6,7 @@ import { IncomeRoutes } from '../app/modules/income/income.route';
 import { ExpenseRoutes } from '../app/modules/expense/expense.route';
 import { BudgetRoutes } from '../app/modules/budget/budget.route';
 import { SavingsGoalRoutes } from '../app/modules/savingsgoal/savingsGoal.route';
+import { DebtRoutes } from '../app/modules/debts/debts.route';
 
 const router = express.Router();
 
@@ -33,6 +34,10 @@ const moduleRoutes = [
   {
     path: '/savings-goals',
     route: SavingsGoalRoutes,
+  },
+  {
+    path: '/debts',
+    route: DebtRoutes,
   },
 ];
 

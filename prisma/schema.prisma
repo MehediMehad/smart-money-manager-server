@@ -233,6 +233,11 @@ model Debt {
 
   @@index([userId])
   @@index([status])
+  @@index([type])
+  @@index([person])
+  @@index([userId, type])
+  @@index([userId, status])
+  @@index([userId, dueDate])
   @@map("debts")
 }
 
@@ -244,6 +249,7 @@ enum DebtType {
 enum DebtStatus {
   PENDING
   PAID
+  OVERDUE
 }
 
 model Notification {
