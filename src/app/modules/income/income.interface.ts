@@ -13,6 +13,8 @@ export interface IIncomeFilter {
     date_range?: string;
     month?: string;
     year?: string;
+    sortBy?: string;
+    sortOrder?: string;
 }
 
 export type IncomeWithCategory = {

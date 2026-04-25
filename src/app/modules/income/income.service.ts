@@ -37,7 +37,7 @@ const getAllIncomes = async (
   userId: string,
   filters: IIncomeFilter,
 ) => {
-  const { searchTerm, categoryId, date_range, month, year } = filters;
+  const { searchTerm, categoryId, date_range, month, year, sortBy, sortOrder } = filters;
 
 
   const whereClause: Prisma.IncomeWhereInput = {
@@ -107,10 +107,20 @@ const getAllIncomes = async (
     };
   }
 
+  type SortField = "date" | "amount";
+  const allowedSortFields: SortField[] = ["date", "amount"];
+
+  const safeSortBy: SortField = allowedSortFields.includes(sortBy as SortField)
+    ? (sortBy as SortField)
+    : "date";
+
+  const safeSortOrder: "asc" | "desc" =
+    sortOrder === "asc" ? "asc" : "desc";
+
   const result = await prisma.income.findMany({
     where: whereClause,
     orderBy: {
-      date: "desc",
+      [safeSortBy]: safeSortOrder,
     },
     select: {
       id: true,
@@ -128,7 +138,26 @@ const getAllIncomes = async (
     },
   });
 
-  return result;
+  const allUsedCategories = await prisma.income.findMany({
+    where: {
+      userId,
+    },
+    select: {
+      category: {
+        select: {
+          id: true,
+          name: true,
+          emoji: true,
+          type: true,
+        },
+      },
+    },
+  });
+
+  return {
+    data: result,
+    allUsedCategories,
+  };
 };
 
 
