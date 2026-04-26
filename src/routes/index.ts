@@ -7,6 +7,7 @@ import { ExpenseRoutes } from '../app/modules/expense/expense.route';
 import { BudgetRoutes } from '../app/modules/budget/budget.route';
 import { SavingsGoalRoutes } from '../app/modules/savingsgoal/savingsGoal.route';
 import { DebtRoutes } from '../app/modules/debts/debts.route';
+import { TodayRoutes } from '../app/modules/today/today.route';
 
 const router = express.Router();
 
@@ -14,6 +15,10 @@ const moduleRoutes = [
   {
     path: '/auth',
     route: AuthsRoutes,
+  },
+  {
+    path: '/today',
+    route: TodayRoutes,
   },
   {
     path: '/categories',

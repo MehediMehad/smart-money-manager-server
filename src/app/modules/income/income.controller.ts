@@ -26,6 +26,7 @@ const getAllIncomes = catchAsync(async (req: Request, res: Response) => {
         "categoryId",
         "date_range",
         "month",
+        "year",
         "sortBy",
         "sortOrder",
     ]);

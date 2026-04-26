@@ -138,26 +138,7 @@ const getAllIncomes = async (
     },
   });
 
-  const allUsedCategories = await prisma.income.findMany({
-    where: {
-      userId,
-    },
-    select: {
-      category: {
-        select: {
-          id: true,
-          name: true,
-          emoji: true,
-          type: true,
-        },
-      },
-    },
-  });
-
-  return {
-    data: result,
-    allUsedCategories,
-  };
+  return result
 };
 
 
