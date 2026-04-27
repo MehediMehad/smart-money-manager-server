@@ -1,3 +1,19 @@
+
+
+export const getDayRange = (date: Date = new Date()) => {
+    const startDay = new Date(date);
+    startDay.setHours(0, 0, 0, 0);
+
+    const endDay = new Date(date);
+    endDay.setHours(23, 59, 59, 999);
+
+    return {
+        startDay,
+        endDay,
+    };
+};
+
+
 export const getMonthRange = (year: number, month: number) => {
     return {
         start: new Date(year, month - 1, 1),
