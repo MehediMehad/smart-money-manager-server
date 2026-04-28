@@ -8,13 +8,23 @@ import { BudgetRoutes } from '../app/modules/budget/budget.route';
 import { SavingsGoalRoutes } from '../app/modules/savingsgoal/savingsGoal.route';
 import { DebtRoutes } from '../app/modules/debts/debts.route';
 import { TodayRoutes } from '../app/modules/today/today.route';
+import { DashboardRoutes } from '../app/modules/dashboard/dashboard.route';
 
 const router = express.Router();
 
-const moduleRoutes = [
+type TModuleRoutes = {
+  path: string;
+  route: any;
+};
+
+const moduleRoutes: TModuleRoutes[] = [
   {
     path: '/auth',
     route: AuthsRoutes,
+  },
+  {
+    path: '/dashboard',
+    route: DashboardRoutes,
   },
   {
     path: '/today',
