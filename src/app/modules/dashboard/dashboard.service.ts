@@ -210,7 +210,7 @@ const getDashboardOverview = async (userId: string) => {
     ].sort(
         (a, b) =>
             new Date(b.date || 0).getTime() - new Date(a.date || 0).getTime(),
-    );
+    ).slice(0, 5);
 
     const receiveDebts = debts
         .filter((debt) => debt.type === 'GIVEN')
