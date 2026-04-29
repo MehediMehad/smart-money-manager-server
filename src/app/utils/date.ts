@@ -1,8 +1,4 @@
-
-
-
 const currentDate = new Date();
-
 
 export const getDayRange = (date: Date = currentDate) => {
     const startDay = new Date(date);

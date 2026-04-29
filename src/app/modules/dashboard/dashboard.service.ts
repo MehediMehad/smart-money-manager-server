@@ -1,8 +1,33 @@
 import prisma from '../../libs/prisma';
 import { calculateChange } from '../../utils/calculate';
-import { getDayRange, getMonthRange } from '../../utils/date';
+import { formatDate, getDayRange, getMonthRange } from '../../utils/date';
 
-const getDashboardOverview = async (userId: string) => {
+const getSelectedMonthDate = (monthQuery?: string) => {
+    if (!monthQuery) return new Date();
+
+    const [month, year] = monthQuery.split('-').map(Number);
+
+    if (!month || !year || month < 1 || month > 12) {
+        return new Date();
+    }
+
+    return new Date(year, month - 1, 1);
+};
+
+const groupAmountByDate = <T extends { amount: number; date: Date }>(
+    items: T[],
+) => {
+    const map = new Map<string, number>();
+
+    items.forEach((item) => {
+        const key = formatDate(item.date);
+        map.set(key, (map.get(key) || 0) + item.amount);
+    });
+
+    return map;
+};
+
+const getDashboardOverview = async (userId: string, monthQuery?: string) => {
     const now = new Date();
 
     const currentMonthStart = new Date(now.getFullYear(), now.getMonth(), 1);
@@ -15,6 +40,19 @@ const getDashboardOverview = async (userId: string) => {
 
     const currentMonth = now.getMonth() + 1;
     const currentYear = now.getFullYear();
+
+    // chart selected month
+    const chartDate = getSelectedMonthDate(monthQuery);
+    const chartMonthStart = new Date(chartDate.getFullYear(), chartDate.getMonth(), 1);
+    const chartMonthEnd = new Date(
+        chartDate.getFullYear(),
+        chartDate.getMonth() + 1,
+        0,
+        23,
+        59,
+        59,
+        999,
+    );
 
     const [
         incomes,
@@ -31,6 +69,8 @@ const getDashboardOverview = async (userId: string) => {
         todayExpense,
         monthlyBudget,
         monthlyExpense,
+        chartIncomes,
+        chartExpenses,
     ] = await Promise.all([
         prisma.income.findMany({
             where: { userId },
@@ -196,6 +236,34 @@ const getDashboardOverview = async (userId: string) => {
             },
             _sum: { amount: true },
         }),
+
+        prisma.income.findMany({
+            where: {
+                userId,
+                date: {
+                    gte: chartMonthStart,
+                    lte: chartMonthEnd,
+                },
+            },
+            select: {
+                amount: true,
+                date: true,
+            },
+        }),
+
+        prisma.expense.findMany({
+            where: {
+                userId,
+                date: {
+                    gte: chartMonthStart,
+                    lte: chartMonthEnd,
+                },
+            },
+            select: {
+                amount: true,
+                date: true,
+            },
+        }),
     ]);
 
     const incomeAmount = currentIncome._sum.amount || 0;
@@ -319,6 +387,26 @@ const getDashboardOverview = async (userId: string) => {
         ),
     ];
 
+    const chartMonth = chartDate.getMonth();
+    const chartMonthName = chartDate.toLocaleString('default', { month: 'long' });
+    const chartYear = chartDate.getFullYear();
+    const daysInChartMonth = new Date(chartYear, chartMonth + 1, 0).getDate();
+
+    const incomeMap = groupAmountByDate(chartIncomes);
+    const expenseMap = groupAmountByDate(chartExpenses);
+
+    const chartData = Array.from({ length: daysInChartMonth }, (_, index) => {
+        const day = index + 1;
+        const date = new Date(chartYear, chartMonth, day);
+        const key = formatDate(date);
+
+        return {
+            date: `${chartMonthName} ${day}`,
+            income: incomeMap.get(key) || 0,
+            expense: expenseMap.get(key) || 0,
+        };
+    });
+
     return {
         stats: [
             {
@@ -342,17 +430,14 @@ const getDashboardOverview = async (userId: string) => {
                 change: calculateChange(savingsAmount, previousSavingsAmount),
             },
         ],
-
         transactions,
-
         debts: {
             receive: receiveDebts,
             pay: payDebts,
         },
-
         goals,
-
         budgets,
+        chartData
     };
 };
 
