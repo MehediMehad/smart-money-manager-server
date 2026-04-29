@@ -1,7 +1,8 @@
-import prisma from '../../libs/prisma';
+import type { Prisma } from '@prisma/client';
+
 import type { TCreateCategoriesPayload, TGetCategoriesFilter } from './categories.interface';
 import { findAdminId } from '../../helpers/db/categories.seed';
-import { Prisma } from '@prisma/client';
+import prisma from '../../libs/prisma';
 
 const createCategory = async (userId: string, payload: TCreateCategoriesPayload) => {
   const { name, type, emoji } = payload;
@@ -45,7 +46,7 @@ const createCategory = async (userId: string, payload: TCreateCategoriesPayload)
         data: {
           emoji,
         },
-      })
+      });
 
       return existing;
     }
@@ -59,7 +60,7 @@ const createCategory = async (userId: string, payload: TCreateCategoriesPayload)
         data: {
           userId: adminId,
         },
-      })
+      });
     }
 
     // if not hidden → update
@@ -80,31 +81,32 @@ const createCategory = async (userId: string, payload: TCreateCategoriesPayload)
 };
 
 const createCategories = async (userId: string, payloads: TCreateCategoriesPayload[]) => {
-
   const adminId = await findAdminId();
 
   const results = await prisma.$transaction(async (tx) => {
     // Get all categories of user that match any of the payload names+types
     const existingCategories = await tx.category.findMany({
       where: {
-        OR: payloads.map(p => ({ name: p.name, type: p.type })),
+        OR: payloads.map((p) => ({ name: p.name, type: p.type })),
       },
     });
 
     const hiddenCategories = await tx.hiddenCategory.findMany({
       where: {
         userId,
-        categoryId: { in: existingCategories.map(c => c.id) },
+        categoryId: { in: existingCategories.map((c) => c.id) },
       },
     });
 
     const results = [];
 
     for (const payload of payloads) {
-      const existing = existingCategories.find(c => c.name === payload.name && c.type === payload.type);
+      const existing = existingCategories.find(
+        (c) => c.name === payload.name && c.type === payload.type,
+      );
 
       if (existing) {
-        const hidden = hiddenCategories.find(h => h.categoryId === existing.id);
+        const hidden = hiddenCategories.find((h) => h.categoryId === existing.id);
 
         if (hidden) {
           await tx.hiddenCategory.delete({
@@ -141,10 +143,7 @@ const createCategories = async (userId: string, payloads: TCreateCategoriesPaylo
 
   return results;
 };
-const getCategories = async (
-  userId: string,
-  filter: TGetCategoriesFilter
-) => {
+const getCategories = async (userId: string, filter: TGetCategoriesFilter) => {
   const { searchTerm, type, year, month } = filter;
   const adminId = await findAdminId();
 
@@ -156,8 +155,8 @@ const getCategories = async (
       },
     },
     name: {
-      contains: searchTerm || "",
-      mode: "insensitive",
+      contains: searchTerm || '',
+      mode: 'insensitive',
     },
     ...(type && {
       type: {
@@ -170,7 +169,7 @@ const getCategories = async (
     const start = new Date(Number(year), Number(month) - 1, 1);
     const end = new Date(Number(year), Number(month), 1);
 
-    if (type === "EXPENSE") {
+    if (type === 'EXPENSE') {
       whereClause.expenses = {
         some: {
           userId,
@@ -182,7 +181,7 @@ const getCategories = async (
       };
     }
 
-    if (type === "INCOME") {
+    if (type === 'INCOME') {
       whereClause.incomes = {
         some: {
           userId,
@@ -204,7 +203,7 @@ const getCategories = async (
       type: true,
     },
     orderBy: {
-      name: "desc",
+      name: 'desc',
     },
   });
 
@@ -234,11 +233,11 @@ const defaultCategories = async (filter: TGetCategoriesFilter) => {
       id: true,
       emoji: true,
       name: true,
-      type: true
+      type: true,
     },
     orderBy: {
-      name: 'desc'
-    }
+      name: 'desc',
+    },
   });
 
   return categories;

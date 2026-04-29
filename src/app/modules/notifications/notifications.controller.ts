@@ -3,7 +3,7 @@ import httpStatus from 'http-status';
 
 import { NotificationsServices } from './notifications.service';
 import catchAsync from '../../helpers/catchAsync';
-import sendResponse from '../../utils/sendResponse';
+import sendResponse from '../../helpers/sendResponse';
 
 const sendPushNotification = catchAsync(async (req: Request, res: Response) => {
   const result = await NotificationsServices.sendPushNotification(req.body);

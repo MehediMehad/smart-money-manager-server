@@ -1,20 +1,20 @@
 import express from 'express';
 
 import { AuthsRoutes } from '../app/modules/auths/auths.route';
-import { CategoriesRoutes } from '../app/modules/categories/categories.route';
-import { IncomeRoutes } from '../app/modules/income/income.route';
-import { ExpenseRoutes } from '../app/modules/expense/expense.route';
 import { BudgetRoutes } from '../app/modules/budget/budget.route';
-import { SavingsGoalRoutes } from '../app/modules/savingsgoal/savingsGoal.route';
-import { DebtRoutes } from '../app/modules/debts/debts.route';
-import { TodayRoutes } from '../app/modules/today/today.route';
+import { CategoriesRoutes } from '../app/modules/categories/categories.route';
 import { DashboardRoutes } from '../app/modules/dashboard/dashboard.route';
+import { DebtRoutes } from '../app/modules/debts/debts.route';
+import { ExpenseRoutes } from '../app/modules/expense/expense.route';
+import { IncomeRoutes } from '../app/modules/income/income.route';
+import { SavingsGoalRoutes } from '../app/modules/savingsgoal/savingsGoal.route';
+import { TodayRoutes } from '../app/modules/today/today.route';
 
 const router = express.Router();
 
 type TModuleRoutes = {
   path: string;
-  route: any;
+  route: express.Router;
 };
 
 const moduleRoutes: TModuleRoutes[] = [

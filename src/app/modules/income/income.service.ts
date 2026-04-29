@@ -1,26 +1,20 @@
-import prisma from "../../libs/prisma";
-import ApiError from "../../errors/ApiError";
-import httpStatus from "http-status";
-import { Prisma } from "@prisma/client";
-import { paginationHelper } from "../../helpers/paginationHelper";
-import { IPaginationOptions } from "../../interface/pagination.type";
-import type {
-  TCreateIncomePayload,
-  TUpdateIncomePayload,
-  IIncomeFilter,
-} from "./income.interface";
+import type { Prisma } from '@prisma/client';
+import httpStatus from 'http-status';
+
+import type { TCreateIncomePayload, TUpdateIncomePayload, IIncomeFilter } from './income.interface';
+import ApiError from '../../errors/ApiError';
+import prisma from '../../libs/prisma';
 
 const createIncome = async (userId: string, payload: TCreateIncomePayload) => {
   const category = await prisma.category.findFirst({
     where: {
       id: payload.categoryId,
-      // userId,
-      type: "INCOME",
+      type: 'INCOME',
     },
   });
 
   if (!category) {
-    throw new ApiError(httpStatus.BAD_REQUEST, "Invalid income category");
+    throw new ApiError(httpStatus.BAD_REQUEST, 'Invalid income category');
   }
 
   const result = await prisma.income.create({
@@ -33,12 +27,8 @@ const createIncome = async (userId: string, payload: TCreateIncomePayload) => {
   return result;
 };
 
-const getAllIncomes = async (
-  userId: string,
-  filters: IIncomeFilter,
-) => {
+const getAllIncomes = async (userId: string, filters: IIncomeFilter) => {
   const { searchTerm, categoryId, date_range, month, year, sortBy, sortOrder } = filters;
-
 
   const whereClause: Prisma.IncomeWhereInput = {
     userId,
@@ -66,14 +56,9 @@ const getAllIncomes = async (
   if (year && month && date_range) {
     const y = Number(year);
     const m = Number(month);
-    const [startDay, endDay] = date_range.split("-").map(Number);
+    const [startDay, endDay] = date_range.split('-').map(Number);
 
-    if (
-      !isNaN(y) &&
-      !isNaN(m) &&
-      !isNaN(startDay) &&
-      !isNaN(endDay)
-    ) {
+    if (!isNaN(y) && !isNaN(m) && !isNaN(startDay) && !isNaN(endDay)) {
       const start = new Date(y, m - 1, startDay);
       const end = new Date(y, m - 1, endDay + 1);
 
@@ -107,15 +92,14 @@ const getAllIncomes = async (
     };
   }
 
-  type SortField = "date" | "amount";
-  const allowedSortFields: SortField[] = ["date", "amount"];
+  type SortField = 'date' | 'amount';
+  const allowedSortFields: SortField[] = ['date', 'amount'];
 
   const safeSortBy: SortField = allowedSortFields.includes(sortBy as SortField)
     ? (sortBy as SortField)
-    : "date";
+    : 'date';
 
-  const safeSortOrder: "asc" | "desc" =
-    sortOrder === "asc" ? "asc" : "desc";
+  const safeSortOrder: 'asc' | 'desc' = sortOrder === 'asc' ? 'asc' : 'desc';
 
   const result = await prisma.income.findMany({
     where: whereClause,
@@ -138,9 +122,8 @@ const getAllIncomes = async (
     },
   });
 
-  return result
+  return result;
 };
-
 
 const getSingleIncome = async (userId: string, id: string) => {
   const income = await prisma.income.findFirst({
@@ -164,17 +147,13 @@ const getSingleIncome = async (userId: string, id: string) => {
   });
 
   if (!income) {
-    throw new ApiError(httpStatus.NOT_FOUND, "Income not found");
+    throw new ApiError(httpStatus.NOT_FOUND, 'Income not found');
   }
 
   return income;
 };
 
-const updateIncome = async (
-  userId: string,
-  id: string,
-  payload: TUpdateIncomePayload
-) => {
+const updateIncome = async (userId: string, id: string, payload: TUpdateIncomePayload) => {
   await getSingleIncome(userId, id);
 
   const result = await prisma.income.update({
@@ -194,7 +173,6 @@ const deleteIncome = async (userId: string, id: string) => {
 
   return null;
 };
-
 
 export const IncomeServices = {
   createIncome,

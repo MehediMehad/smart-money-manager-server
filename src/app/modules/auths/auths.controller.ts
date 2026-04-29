@@ -4,8 +4,7 @@ import httpStatus from 'http-status';
 import { AuthsServices } from './auths.service';
 import ApiError from '../../errors/ApiError';
 import catchAsync from '../../helpers/catchAsync';
-import sendResponse from '../../utils/sendResponse';
-import config from '../../../configs';
+import sendResponse from '../../helpers/sendResponse';
 
 const registerUserIntoDB = catchAsync(async (req: Request, res: Response) => {
   const result = await AuthsServices.registerUser(req.body);

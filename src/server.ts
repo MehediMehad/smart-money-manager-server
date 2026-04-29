@@ -1,11 +1,10 @@
 import type { Server as HttpServer } from 'http';
 
-
 import app from './app';
+import seedCategories from './app/helpers/db/categories.seed';
 import seedSuperAdmin from './app/helpers/db/seedSuperAdmin';
 import { getLocalIP } from './app/helpers/devHelpers';
 import config from './configs';
-import seedCategories from './app/helpers/db/categories.seed';
 // import { initializeSocket } from './app/modules/chat/chat.socket';
 
 let server: HttpServer;
@@ -19,7 +18,6 @@ async function main() {
       await seedSuperAdmin(); // Seed Super Admin user on startup
       await seedCategories(); // Seed categories on startup
       getLocalIP(); // 🖥️ Your PC's local IPv4 address(es)
-
     });
 
     // 🔐 Handle Uncaught Exceptions

@@ -1,9 +1,10 @@
 import type { Request, Response } from 'express';
 import httpStatus from 'http-status';
-import catchAsync from '../../helpers/catchAsync';
-import sendResponse from '../../utils/sendResponse';
-import pick from '../../helpers/pick';
+
 import { ExpenseServices } from './expense.service';
+import catchAsync from '../../helpers/catchAsync';
+import sendResponse from '../../helpers/sendResponse';
+import { pick } from '../../utils/objectUtils';
 
 const createExpense = catchAsync(async (req: Request, res: Response) => {
   const userId = req.user.userId;
@@ -21,13 +22,7 @@ const createExpense = catchAsync(async (req: Request, res: Response) => {
 const getAllExpenses = catchAsync(async (req: Request, res: Response) => {
   const userId = req.user.userId;
 
-  const filters = pick(req.query, [
-    'searchTerm',
-    'categoryId',
-    'month',
-    'year',
-    'date_range',
-  ]);
+  const filters = pick(req.query, ['searchTerm', 'categoryId', 'month', 'year', 'date_range']);
 
   const result = await ExpenseServices.getAllExpenses(userId, filters);
 
@@ -55,11 +50,7 @@ const getSingleExpense = catchAsync(async (req: Request, res: Response) => {
 const updateExpense = catchAsync(async (req: Request, res: Response) => {
   const userId = req.user.userId;
 
-  const result = await ExpenseServices.updateExpense(
-    userId,
-    req.params.id,
-    req.body,
-  );
+  const result = await ExpenseServices.updateExpense(userId, req.params.id, req.body);
 
   sendResponse(res, {
     statusCode: httpStatus.OK,

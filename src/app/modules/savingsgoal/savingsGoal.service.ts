@@ -1,7 +1,7 @@
-import prisma from '../../libs/prisma';
-import ApiError from '../../errors/ApiError';
+import type { Prisma } from '@prisma/client';
 import httpStatus from 'http-status';
-import { Prisma } from '@prisma/client';
+
+import { monthNames } from './savingsGoal.constant';
 import type {
   TCreateSavingsGoalPayload,
   TUpdateSavingsGoalPayload,
@@ -9,13 +9,11 @@ import type {
   TMonth,
   TMonthlySavingsTrend,
 } from './savingsGoal.interface';
-import { monthNames } from './savingsGoal.constant';
+import ApiError from '../../errors/ApiError';
+import prisma from '../../libs/prisma';
 import { getYearRange } from '../../utils/date';
 
-const createSavingsGoal = async (
-  userId: string,
-  payload: TCreateSavingsGoalPayload,
-) => {
+const createSavingsGoal = async (userId: string, payload: TCreateSavingsGoalPayload) => {
   const result = await prisma.savingsGoal.create({
     data: {
       userId,
@@ -48,8 +46,7 @@ const getAllSavingsGoals = async (userId: string) => {
     },
   });
 
-  const goalIds = savingsGoal.map(goal => goal.id);
-
+  const goalIds = savingsGoal.map((goal) => goal.id);
 
   const monthlySavingsMap: Record<TMonth, number> = {
     Jan: 0,
@@ -69,7 +66,6 @@ const getAllSavingsGoals = async (userId: string) => {
   if (goalIds.length > 0) {
     const currentYear = new Date().getFullYear();
     const { yearStart, yearEnd } = getYearRange(currentYear);
-
 
     const savingsTransactions = await prisma.savingsTransaction.findMany({
       where: {
@@ -101,12 +97,10 @@ const getAllSavingsGoals = async (userId: string) => {
     ...monthNames.slice(0, currentMonthIndex + 1),
   ];
 
-  const monthlySavingsTrend: TMonthlySavingsTrend[] = orderedMonths.map(
-    month => ({
-      month,
-      saved: monthlySavingsMap[month],
-    }),
-  );
+  const monthlySavingsTrend: TMonthlySavingsTrend[] = orderedMonths.map((month) => ({
+    month,
+    saved: monthlySavingsMap[month],
+  }));
 
   return {
     savingsGoal,
@@ -164,7 +158,7 @@ const addSavingsAmount = async (
 ) => {
   await getSingleSavingsGoal(userId, goalId);
 
-  const result = await prisma.$transaction(async tx => {
+  const result = await prisma.$transaction(async (tx) => {
     const updatedGoal = await tx.savingsGoal.update({
       where: { id: goalId },
       data: {
@@ -190,7 +184,7 @@ const addSavingsAmount = async (
 const deleteSavingsGoal = async (userId: string, id: string) => {
   await getSingleSavingsGoal(userId, id);
 
-  await prisma.$transaction(async tx => {
+  await prisma.$transaction(async (tx) => {
     await tx.savingsTransaction.deleteMany({
       where: {
         goalId: id,

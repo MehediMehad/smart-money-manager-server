@@ -1,8 +1,9 @@
 import { Router } from 'express';
-import auth from '../../middlewares/auth';
-import validateRequest from '../../middlewares/validateRequest';
+
 import { SavingsGoalControllers } from './savingsGoal.controller';
 import { SavingsGoalValidations } from './savingsGoal.validation';
+import auth from '../../middlewares/auth';
+import validateRequest from '../../middlewares/validateRequest';
 
 const router = Router();
 

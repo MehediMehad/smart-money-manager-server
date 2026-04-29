@@ -1,10 +1,10 @@
-import { Debt, DebtStatus, DebtType, Prisma } from '@prisma/client';
+import type { Prisma } from '@prisma/client';
+import { DebtStatus, DebtType } from '@prisma/client';
 import httpStatus from 'http-status';
-import { IDebtFilters, TCreateDebtsPayload } from './debts.interface';
-import prisma from '../../libs/prisma';
+
+import type { IDebtFilters, TCreateDebtsPayload } from './debts.interface';
 import ApiError from '../../errors/ApiError';
-
-
+import prisma from '../../libs/prisma';
 
 type IUpdateDebtPayload = Partial<TCreateDebtsPayload>;
 
@@ -73,9 +73,7 @@ const getAllDebts = async (userId: string, filters: IDebtFilters) => {
     });
   }
 
-  const whereConditions: Prisma.DebtWhereInput = andConditions.length
-    ? { AND: andConditions }
-    : {};
+  const whereConditions: Prisma.DebtWhereInput = andConditions.length ? { AND: andConditions } : {};
 
   const [data, totalGivenAgg, totalTakenAgg, upcomingPayableAgg, upcomingReceivableAgg] =
     await Promise.all([

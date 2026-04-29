@@ -6,14 +6,14 @@ export type TCreateBudgetPayload = z.infer<typeof createBudgetSchema>;
 export type TUpdateBudgetPayload = z.infer<typeof updateBudgetSchema>;
 
 export type TBudget = {
+  id: string;
+  categoryId: string;
+  category: {
     id: string;
-    categoryId: string;
-    category: {
-        id: string;
-        name: string;
-        emoji: string;
-    };
-    type: "DAILY" | "MONTHLY";
-    amount: number;
-    spent: number;
+    name: string;
+    emoji: string;
+  };
+  type: 'DAILY' | 'MONTHLY';
+  amount: number;
+  spent: number;
 };

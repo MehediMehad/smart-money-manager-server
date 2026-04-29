@@ -6,7 +6,6 @@ import type { Application, NextFunction, Request, Response } from 'express';
 import express from 'express';
 import httpStatus from 'http-status';
 import morgan from 'morgan';
-import cron from 'node-cron';
 
 import globalErrorHandler from './app/errors/globalErrorHandler';
 import { getEnvVar } from './app/helpers/getEnvVar';

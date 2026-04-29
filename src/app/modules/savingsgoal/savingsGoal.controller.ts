@@ -1,9 +1,9 @@
 import type { Request, Response } from 'express';
 import httpStatus from 'http-status';
-import catchAsync from '../../helpers/catchAsync';
-import sendResponse from '../../utils/sendResponse';
-import pick from '../../helpers/pick';
+
 import { SavingsGoalServices } from './savingsGoal.service';
+import catchAsync from '../../helpers/catchAsync';
+import sendResponse from '../../helpers/sendResponse';
 
 const createSavingsGoal = catchAsync(async (req: Request, res: Response) => {
   const userId = req.user.userId;
@@ -34,10 +34,7 @@ const getAllSavingsGoals = catchAsync(async (req: Request, res: Response) => {
 const getSingleSavingsGoal = catchAsync(async (req: Request, res: Response) => {
   const userId = req.user.userId;
 
-  const result = await SavingsGoalServices.getSingleSavingsGoal(
-    userId,
-    req.params.id,
-  );
+  const result = await SavingsGoalServices.getSingleSavingsGoal(userId, req.params.id);
 
   sendResponse(res, {
     statusCode: httpStatus.OK,
@@ -50,11 +47,7 @@ const getSingleSavingsGoal = catchAsync(async (req: Request, res: Response) => {
 const updateSavingsGoal = catchAsync(async (req: Request, res: Response) => {
   const userId = req.user.userId;
 
-  const result = await SavingsGoalServices.updateSavingsGoal(
-    userId,
-    req.params.id,
-    req.body,
-  );
+  const result = await SavingsGoalServices.updateSavingsGoal(userId, req.params.id, req.body);
 
   sendResponse(res, {
     statusCode: httpStatus.OK,
@@ -67,11 +60,7 @@ const updateSavingsGoal = catchAsync(async (req: Request, res: Response) => {
 const addSavingsAmount = catchAsync(async (req: Request, res: Response) => {
   const userId = req.user.userId;
 
-  const result = await SavingsGoalServices.addSavingsAmount(
-    userId,
-    req.params.id,
-    req.body,
-  );
+  const result = await SavingsGoalServices.addSavingsAmount(userId, req.params.id, req.body);
 
   sendResponse(res, {
     statusCode: httpStatus.OK,

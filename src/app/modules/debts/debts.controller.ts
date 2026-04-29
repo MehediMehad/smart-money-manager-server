@@ -1,9 +1,10 @@
+import type { Request, Response } from 'express';
 import httpStatus from 'http-status';
-import { Request, Response } from 'express';
-import catchAsync from '../../helpers/catchAsync';
+
 import { DebtServices } from './debts.service';
-import sendResponse from '../../utils/sendResponse';
-import pick from '../../helpers/pick';
+import catchAsync from '../../helpers/catchAsync';
+import sendResponse from '../../helpers/sendResponse';
+import { pick } from '../../utils/objectUtils';
 
 const createDebt = catchAsync(async (req: Request, res: Response) => {
   const user = req.user as { userId: string };

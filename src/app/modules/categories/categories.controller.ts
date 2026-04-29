@@ -3,8 +3,8 @@ import httpStatus from 'http-status';
 
 import { CategoriesServices } from './categories.service';
 import catchAsync from '../../helpers/catchAsync';
-import sendResponse from '../../utils/sendResponse';
-import pick from '../../helpers/pick';
+import sendResponse from '../../helpers/sendResponse';
+import { pick } from '../../utils/objectUtils';
 
 const createCategoryIntoDB = catchAsync(async (req: Request, res: Response) => {
   const userId = req.user.userId;
@@ -28,7 +28,7 @@ const createCategoriesIntoDB = catchAsync(async (req: Request, res: Response) =>
     message: 'Categories created successfully',
     data: result,
   });
-})
+});
 
 const getCategories = catchAsync(async (req: Request, res: Response) => {
   const userId = req.user.userId;

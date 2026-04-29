@@ -16,14 +16,13 @@ import type {
 import config from '../../../configs';
 import ApiError from '../../errors/ApiError';
 import { authHelpers } from '../../helpers/authHelpers';
+import { ForgotPasswordHtml } from '../../helpers/email/ForgotPasswordHtml';
+import { sentEmailUtility } from '../../helpers/email/sendEmail.util';
+import { SignUpVerificationHtml } from '../../helpers/email/SignUpVerificationHtml';
 import { generateHelpers } from '../../helpers/generateHelpers';
 import prisma from '../../libs/prisma';
-import { ForgotPasswordHtml } from '../../utils/email/ForgotPasswordHtml';
-import { sentEmailUtility } from '../../utils/email/sendEmail.util';
-import { SignUpVerificationHtml } from '../../utils/email/SignUpVerificationHtml';
 
 const registerUser = async (payload: TRegisterPayload) => {
-
   const expireMinutes = 1;
   // if user already exists
   const isUserExists = await prisma.user.findFirst({
@@ -38,7 +37,7 @@ const registerUser = async (payload: TRegisterPayload) => {
 
   const hashedPassword: string = await authHelpers.hashPassword(payload.password);
 
-  let fcmTokens: string[] = [];
+  const fcmTokens: string[] = [];
 
   if (payload.fcmToken) {
     fcmTokens.push(payload.fcmToken);
@@ -51,7 +50,7 @@ const registerUser = async (payload: TRegisterPayload) => {
     password: hashedPassword,
     role: payload.role,
     isVerified: false,
-    fcmTokens: fcmTokens,
+    fcmTokens,
     status: 'DEACTIVATE',
   };
 
@@ -107,7 +106,6 @@ const loginUser = async (payload: TLoginPayload) => {
   const isPasswordMatch = await compare(payload.password, user.password);
 
   if (!isPasswordMatch) throw new ApiError(httpStatus.UNAUTHORIZED, 'Invalid password');
-
 
   const updateData: Prisma.UserUpdateInput = {
     lastLoginAt: new Date(),

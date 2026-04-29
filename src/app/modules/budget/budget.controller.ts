@@ -3,8 +3,8 @@ import httpStatus from 'http-status';
 
 import { BudgetServices } from './budget.service';
 import catchAsync from '../../helpers/catchAsync';
-import sendResponse from '../../utils/sendResponse';
-import pick from '../../helpers/pick';
+import sendResponse from '../../helpers/sendResponse';
+import { pick } from '../../utils/objectUtils';
 
 const createBudgetIntoDB = catchAsync(async (req: Request, res: Response) => {
   const userId = req.user.userId;
@@ -46,5 +46,5 @@ const updateBudget = catchAsync(async (req: Request, res: Response) => {
 export const BudgetControllers = {
   createBudgetIntoDB,
   getAllBudgets,
-  updateBudget
+  updateBudget,
 };

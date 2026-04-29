@@ -40,7 +40,6 @@ const matchDay = (dayOne: string = new Date().toISOString(), dayTwo: string) => 
 // const { start, end } = getDateRange('2002-09-15');
 //* Output: { start: 2002-09-15T00:00:00.000Z, end: 2002-09-15T23:59:59.999Z }
 
-
 const getMonthRange = (year: number, month: number) => {
   const start = new Date(year, month - 1, 1, 0, 0, 0, 0);
   const end = new Date(year, month, 0, 23, 59, 59, 999);
@@ -50,8 +49,6 @@ const getMonthRange = (year: number, month: number) => {
 // example 04:
 // const { start, end } = getMonthRange(2002, 9);
 //* Output: { start: 2002-09-01T00:00:00.000Z, end: 2002-09-30T23:59:59.999Z }
-
-
 
 const getDayDateRange = (dateStr: string) => {
   const start = new Date(dateStr);
@@ -65,7 +62,8 @@ const getDayDateRange = (dateStr: string) => {
 
 // output: { start: 2026-03-16T00:00:00.000Z, end: 2026-03-16T23:59:59.999Z }
 
-const getMonthDateRange = (dateStr: string) => { // 2026-03-16
+const getMonthDateRange = (dateStr: string) => {
+  // 2026-03-16
   const date = new Date(dateStr);
   const year = date.getUTCFullYear();
   const month = date.getUTCMonth() + 1; // 1-12
@@ -83,5 +81,5 @@ export const dateHelpers = {
   matchDay,
   getMonthRange,
   getDayDateRange,
-  getMonthDateRange
+  getMonthDateRange,
 };

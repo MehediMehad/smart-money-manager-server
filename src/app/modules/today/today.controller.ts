@@ -1,23 +1,23 @@
 import type { Request, Response } from 'express';
 import httpStatus from 'http-status';
 
-import catchAsync from '../../helpers/catchAsync';
-import sendResponse from '../../utils/sendResponse';
 import { TodayServices } from './today.service';
+import catchAsync from '../../helpers/catchAsync';
+import sendResponse from '../../helpers/sendResponse';
 
 const getTodayUpdate = catchAsync(async (req: Request, res: Response) => {
-    const userId = req.user.id;
+  const userId = req.user.id;
 
-    const result = await TodayServices.getTodayUpdate(userId);
+  const result = await TodayServices.getTodayUpdate(userId);
 
-    sendResponse(res, {
-        statusCode: httpStatus.OK,
-        success: true,
-        message: "Today's update fetched successfully",
-        data: result,
-    });
+  sendResponse(res, {
+    statusCode: httpStatus.OK,
+    success: true,
+    message: "Today's update fetched successfully",
+    data: result,
+  });
 });
 
 export const TodayControllers = {
-    getTodayUpdate,
+  getTodayUpdate,
 };

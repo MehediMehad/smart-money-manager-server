@@ -1,12 +1,13 @@
-import prisma from '../../libs/prisma';
-import ApiError from '../../errors/ApiError';
+import type { Prisma } from '@prisma/client';
 import httpStatus from 'http-status';
-import { Prisma } from '@prisma/client';
+
 import type {
   TCreateExpensePayload,
   TUpdateExpensePayload,
   IExpenseFilter,
 } from './expense.interface';
+import ApiError from '../../errors/ApiError';
+import prisma from '../../libs/prisma';
 
 const createExpense = async (userId: string, payload: TCreateExpensePayload) => {
   const category = await prisma.category.findFirst({
@@ -49,7 +50,7 @@ const createExpense = async (userId: string, payload: TCreateExpensePayload) => 
     where: {
       userId,
       categoryId: payload.categoryId,
-      month: expenseDate.getMonth() + 1,  // JavaScript months are 0-based
+      month: expenseDate.getMonth() + 1, // JavaScript months are 0-based
       year: expenseDate.getFullYear(),
     },
   });
@@ -78,10 +79,7 @@ const createExpense = async (userId: string, payload: TCreateExpensePayload) => 
   return result;
 };
 
-const getAllExpenses = async (
-  userId: string,
-  filters: IExpenseFilter,
-) => {
+const getAllExpenses = async (userId: string, filters: IExpenseFilter) => {
   const { searchTerm, categoryId, date_range, month, year } = filters;
 
   const whereClause: Prisma.ExpenseWhereInput = {
@@ -110,14 +108,9 @@ const getAllExpenses = async (
   if (year && month && date_range) {
     const y = Number(year);
     const m = Number(month);
-    const [startDay, endDay] = date_range.split("-").map(Number);
+    const [startDay, endDay] = date_range.split('-').map(Number);
 
-    if (
-      !isNaN(y) &&
-      !isNaN(m) &&
-      !isNaN(startDay) &&
-      !isNaN(endDay)
-    ) {
+    if (!isNaN(y) && !isNaN(m) && !isNaN(startDay) && !isNaN(endDay)) {
       const start = new Date(y, m - 1, startDay);
       const end = new Date(y, m - 1, endDay + 1);
 
@@ -154,7 +147,7 @@ const getAllExpenses = async (
   const result = await prisma.expense.findMany({
     where: whereClause,
     orderBy: {
-      date: "desc",
+      date: 'desc',
     },
     select: {
       id: true,
@@ -193,7 +186,7 @@ const getSingleExpense = async (userId: string, id: string) => {
           emoji: true,
         },
       },
-    }
+    },
   });
 
   if (!expense) {
@@ -203,11 +196,7 @@ const getSingleExpense = async (userId: string, id: string) => {
   return expense;
 };
 
-const updateExpense = async (
-  userId: string,
-  id: string,
-  payload: TUpdateExpensePayload,
-) => {
+const updateExpense = async (userId: string, id: string, payload: TUpdateExpensePayload) => {
   await getSingleExpense(userId, id);
 
   const result = await prisma.expense.update({
