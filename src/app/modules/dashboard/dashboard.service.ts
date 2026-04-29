@@ -1,15 +1,6 @@
 import prisma from '../../libs/prisma';
-
-const calculateChange = (current: number, previous: number) => {
-    if (previous === 0) {
-        return current > 0 ? '+100%' : '0%';
-    }
-
-    const change = ((current - previous) / previous) * 100;
-    const formatted = Number(change.toFixed(1));
-
-    return `${formatted > 0 ? '+' : ''}${formatted}%`;
-};
+import { calculateChange } from '../../utils/calculate';
+import { getDayRange, getMonthRange } from '../../utils/date';
 
 const getDashboardOverview = async (userId: string) => {
     const now = new Date();
@@ -20,18 +11,26 @@ const getDashboardOverview = async (userId: string) => {
     const previousMonthStart = new Date(now.getFullYear(), now.getMonth() - 1, 1);
     const previousMonthEnd = new Date(now.getFullYear(), now.getMonth(), 0);
 
+    const { startDay, endDay } = getDayRange()
+
+    const currentMonth = now.getMonth() + 1;
+    const currentYear = now.getFullYear();
+
     const [
         incomes,
         expenses,
         savingsGoals,
         debts,
-
         currentIncome,
         previousIncome,
         currentExpense,
         previousExpense,
         currentSavingsTransactions,
         previousSavingsTransactions,
+        todayBudget,
+        todayExpense,
+        monthlyBudget,
+        monthlyExpense,
     ] = await Promise.all([
         prisma.income.findMany({
             where: { userId },
@@ -155,6 +154,48 @@ const getDashboardOverview = async (userId: string) => {
             },
             _sum: { amount: true },
         }),
+
+        prisma.dailyBudget.aggregate({
+            where: {
+                userId,
+                date: {
+                    gte: startDay,
+                    lte: endDay,
+                },
+            },
+            _sum: { amount: true },
+        }),
+
+        prisma.expense.aggregate({
+            where: {
+                userId,
+                date: {
+                    gte: startDay,
+                    lte: endDay,
+                },
+            },
+            _sum: { amount: true },
+        }),
+
+        prisma.monthlyBudget.aggregate({
+            where: {
+                userId,
+                month: currentMonth,
+                year: currentYear,
+            },
+            _sum: { amount: true },
+        }),
+
+        prisma.expense.aggregate({
+            where: {
+                userId,
+                date: {
+                    gte: currentMonthStart,
+                    lte: currentMonthEnd,
+                },
+            },
+            _sum: { amount: true },
+        }),
     ]);
 
     const incomeAmount = currentIncome._sum.amount || 0;
@@ -242,6 +283,42 @@ const getDashboardOverview = async (userId: string) => {
                 : 0,
     }));
 
+    const buildBudget = (
+        title: string,
+        budgetAmount: number,
+        spentAmount: number,
+        color: string,
+    ) => {
+        const left = budgetAmount - spentAmount;
+
+        return {
+            title,
+            budget: budgetAmount,
+            spent: spentAmount,
+            percent:
+                budgetAmount > 0
+                    ? Math.round((spentAmount / budgetAmount) * 100)
+                    : 0,
+            left,
+            color,
+        };
+    };
+
+    const budgets = [
+        buildBudget(
+            "Today's Budget",
+            todayBudget._sum.amount || 0,
+            todayExpense._sum.amount || 0,
+            'green',
+        ),
+        buildBudget(
+            'Monthly Budget',
+            monthlyBudget._sum.amount || 0,
+            monthlyExpense._sum.amount || 0,
+            'purple',
+        ),
+    ];
+
     return {
         stats: [
             {
@@ -274,6 +351,8 @@ const getDashboardOverview = async (userId: string) => {
         },
 
         goals,
+
+        budgets,
     };
 };
 

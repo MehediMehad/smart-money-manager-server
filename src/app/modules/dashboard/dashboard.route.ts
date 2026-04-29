@@ -6,7 +6,7 @@ const router = Router();
 
 
 router.get(
-    '/',
+    '/overview',
     auth('USER'),
     DashboardController.getDashboardOverview,
 );

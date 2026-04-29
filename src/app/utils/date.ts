@@ -1,6 +1,10 @@
 
 
-export const getDayRange = (date: Date = new Date()) => {
+
+const currentDate = new Date();
+
+
+export const getDayRange = (date: Date = currentDate) => {
     const startDay = new Date(date);
     startDay.setHours(0, 0, 0, 0);
 
