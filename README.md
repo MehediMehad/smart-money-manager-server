@@ -68,6 +68,20 @@ project/
 - SMTP credentials for email/OTP flows
 - Firebase service credentials if push notification features are enabled
 
+## Repository Clone
+
+Clone `smart-money-manager-client`:
+
+```env
+git clone https://github.com/MehediMehad/smart-money-manager-client.git
+```
+
+Clone `smart-money-manager-server`:
+
+```env
+git clone https://github.com/MehediMehad/smart-money-manager-server.git
+```
+
 ## Environment Variables
 
 Create a `.env.local` file inside `smart-money-manager-client`:
