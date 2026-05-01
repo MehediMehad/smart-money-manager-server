@@ -88,7 +88,6 @@ const registerUser = async (payload: TRegisterPayload) => {
   //   },
   // );
 
-
   const user = await prisma.user.create({
     data: CreateUserdata,
     select: {
@@ -98,10 +97,9 @@ const registerUser = async (payload: TRegisterPayload) => {
       role: true,
       isVerified: true,
       fcmTokens: true,
-      status: true
-    }
-  }
-  );
+      status: true,
+    },
+  });
 
   return user;
 };
