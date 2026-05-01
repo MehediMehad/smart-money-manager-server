@@ -49,46 +49,61 @@ const registerUser = async (payload: TRegisterPayload) => {
     email: payload.email,
     password: hashedPassword,
     role: payload.role,
-    isVerified: false,
+    isVerified: true,
     fcmTokens,
-    status: 'DEACTIVATE',
+    status: 'ACTIVE',
   };
 
-  // transaction
-  const result = await prisma.$transaction(
-    async (tx) => {
-      const user = await tx.user.create({
-        data: CreateUserdata,
-      });
+  // // transaction
+  // const result = await prisma.$transaction(
+  //   async (tx) => {
+  //     const user = await tx.user.create({
+  //       data: CreateUserdata,
+  //     });
 
-      const { otp, expiresAt } = generateHelpers.generateOTP(expireMinutes);
+  //     const { otp, expiresAt } = generateHelpers.generateOTP(expireMinutes);
 
-      const createOTP = await tx.otp.create({
-        data: {
-          code: otp,
-          email: user.email,
-          type: 'VERIFY_EMAIL',
-          expiresAt,
-        },
-      });
+  //     const createOTP = await tx.otp.create({
+  //       data: {
+  //         code: otp,
+  //         email: user.email,
+  //         type: 'VERIFY_EMAIL',
+  //         expiresAt,
+  //       },
+  //     });
 
-      // Send email in a separate thread
-      void sentEmailUtility(
-        user.email,
-        'Signup Verification Code',
-        SignUpVerificationHtml('Your Signup Verification Code', createOTP.code, expireMinutes),
-      );
+  //     // Send email in a separate thread
+  //     void sentEmailUtility(
+  //       user.email,
+  //       'Signup Verification Code',
+  //       SignUpVerificationHtml('Your Signup Verification Code', createOTP.code, expireMinutes),
+  //     );
 
-      const { password: _, ...userResponse } = user;
+  //     const { password: _, ...userResponse } = user;
 
-      return userResponse;
-    },
-    {
-      timeout: 10000, // 10 seconds
-    },
+  //     return userResponse;
+  //   },
+  //   {
+  //     timeout: 10000, // 10 seconds
+  //   },
+  // );
+
+
+  const user = await prisma.user.create({
+    data: CreateUserdata,
+    select: {
+      id: true,
+      name: true,
+      email: true,
+      role: true,
+      isVerified: true,
+      fcmTokens: true,
+      status: true
+    }
+  }
   );
 
-  return result;
+  return user;
 };
 
 const loginUser = async (payload: TLoginPayload) => {

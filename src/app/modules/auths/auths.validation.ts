@@ -1,14 +1,14 @@
 import { OtpTypeEnum, UserRoleEnum } from '@prisma/client';
 import { z } from 'zod';
 
-const passwordSchema = z
-  .string()
-  .min(8, 'Password must be at least 8 characters long')
-  .max(32, 'Password must be at most 32 characters long')
-  .regex(/[A-Z]/, 'Password must contain at least one uppercase letter')
-  .regex(/[a-z]/, 'Password must contain at least one lowercase letter')
-  .regex(/[0-9]/, 'Password must contain at least one number')
-  .regex(/[@$!%*?&#]/, 'Password must contain at least one special character');
+// const passwordSchema = z
+//   .string()
+//   .min(8, 'Password must be at least 8 characters long')
+//   .max(32, 'Password must be at most 32 characters long')
+//   .regex(/[A-Z]/, 'Password must contain at least one uppercase letter')
+//   .regex(/[a-z]/, 'Password must contain at least one lowercase letter')
+//   .regex(/[0-9]/, 'Password must contain at least one number')
+//   .regex(/[@$!%*?&#]/, 'Password must contain at least one special character');
 
 export const registerSchema = z.object({
   name: z
@@ -16,7 +16,7 @@ export const registerSchema = z.object({
     .min(2, 'Name must be at least 2 characters')
     .max(50, 'Name must be at most 50 characters'),
   email: z.string().email('Invalid email address').trim().toLowerCase(),
-  password: passwordSchema,
+  password: z.string().min(6, 'Password is required'),
   role: z.nativeEnum(UserRoleEnum).default(UserRoleEnum.USER),
   fcmToken: z.string().optional(),
 });
@@ -33,12 +33,12 @@ export const forgotPasswordSchema = z.object({
 
 export const resetPasswordSchema = z.object({
   token: z.string().min(4, 'Invalid or missing token'),
-  newPassword: passwordSchema,
+  newPassword: z.string().min(6, 'Password must be at least 6 characters'),
 });
 
 export const changePasswordSchema = z.object({
   oldPassword: z.string().min(6, 'Old password is required'),
-  newPassword: passwordSchema,
+  newPassword: z.string().min(6, 'New password is required'),
 });
 
 export const verifySchema = z.object({
