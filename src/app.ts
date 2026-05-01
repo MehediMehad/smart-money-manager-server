@@ -44,7 +44,7 @@ app.use(cookieParser());
 // 🌐 CORS Configuration (support multiple origins)
 app.use(
   cors({
-    origin: process.env.CLIENT_ORIGIN?.split(',') || [
+    origin: process.env.CORS_ORIGINS?.split(',') || [
       'http://localhost:3000',
       'http://10.0.30.194:3000',
     ],
