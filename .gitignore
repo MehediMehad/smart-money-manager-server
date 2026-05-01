@@ -4,5 +4,5 @@ dist
 logs
 .env
 .vscode
-.vercel
-.env*.local
+# .vercel
+# .env*.local
