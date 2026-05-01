@@ -34,10 +34,10 @@ const seedCategories = async () => {
     { name: 'Education', type: 'EXPENSE', emoji: '📚', userId: adminId },
     { name: 'Entertainment', type: 'EXPENSE', emoji: '🎬', userId: adminId },
     { name: 'Gym', type: 'EXPENSE', emoji: '🏋️', userId: adminId },
+    { name: 'Salon', type: 'EXPENSE', emoji: '💇', userId: adminId },
     { name: 'Insurance', type: 'EXPENSE', emoji: '🛡️', userId: adminId },
     { name: 'Gift', type: 'EXPENSE', emoji: '🎁', userId: adminId },
     { name: 'Family', type: 'EXPENSE', emoji: '👨‍👩‍👧', userId: adminId },
-    { name: 'Pet', type: 'EXPENSE', emoji: '🐶', userId: adminId },
     { name: 'Subscriptions', type: 'EXPENSE', emoji: '📺', userId: adminId },
     { name: 'Others', type: 'EXPENSE', emoji: '📦', userId: adminId },
   ];
